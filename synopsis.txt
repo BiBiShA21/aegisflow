@@ -1,0 +1,117 @@
+A Synopsis On
+An Autonomous, Multi-Agent DevSecOps Pipeline for Real-Time Vulnerability Remediation and Self-Healing CI/CD Systems
+Submitted in partial fulfilment for the
+degree of Bachelor of Technology in
+Computer Science and Technology
+Submitted by
+Khushi Yadav
+Bhavishya Patil 
+Gauri Shedge 
+Under the guidance of
+Ms. Sonal Kadam
+Usha Mittal Institute of Technology
+, Juhu-Tara Road, Sir Vitthaldas
+Vidyavihar, Santacruz(W), Mumbai, Maharashtra
+400049    
+202
+6
+–2
+7
+SYNOPSIS
+1. Problem Statement
+When software developers write code or cloud configuration files, they often make accidental mistakes — such as leaving an API password exposed, creating an open-port network vulnerability, or writing a buggy database script. Current automated testing tools (like Jenkins or GitHub Actions) are smart enough to scan the code, catch these security errors, and block the deployment. However, that is where they stop. The pipeline breaks, and human developers must drop everything, manually read confusing logs, research the fix, rewrite the code, and re-run the tests. This creates massive delays and production bottlenecks, directly impacting developer productivity and software delivery timelines.
+2. Introduction
+This project builds a 
+Self-Healing Pipeline
+ that does not just find mistakes — it fixes them autonomously without breaking the application. The system represents a shift from passive, alert-only DevSecOps tooling toward an active, 
+Autonomous Remediation Architecture
+. By embedding a coordinated team of Generative AI agents directly into the CI/CD lifecycle, the pipeline can isolate a security failure, retrieve relevant secure-coding knowledge, generate a safe code fix, validate that fix inside an isolated sandbox, and raise a ready-to-merge Pull Request — all without waiting on a human in the early stages of triage. This significantly reduces the time between vulnerability detection and remediation while keeping a human reviewer as the final approval gate.
+3. Objectives
+Autonomous Error Isolation: 
+To design a multi-agent system capable of automatically isolating and interpreting pipeline failure logs and security scan reports without human intervention.
+Knowledge-Grounded Remediation: 
+To integrate a Retrieval-Augmented Generation (RAG) layer loaded with secure programming manuals so that AI-generated fixes follow established secure-coding standards.
+Safe, Validated Code Generation: 
+To build an AI agent capable of automatically rewriting unsafe code (e.g., stripping hardcoded secrets into environment variables) and verifying the fix inside an isolated Docker sandbox before it reaches a developer.
+Human-in-the-Loop Deployment: 
+To automatically raise a GitHub Pull Request once a fix passes a Confidence Score threshold, ensuring developers retain final review and merge authority.
+4. Related Work
+Trivy / Trufflehog Research (Aqua Security, 2023): 
+Established open-source static analysis approaches for detecting container vulnerabilities and leaked secrets within CI/CD pipelines, forming the scanning foundation this project builds upon.
+LangGraph / CrewAI Multi-Agent Frameworks (2024): 
+Demonstrated that coordinating multiple specialized LLM agents — rather than relying on a single monolithic prompt — improves reliability on complex, multi-step reasoning and code-generation tasks.
+Retrieval-Augmented Generation, Lewis et al. (2020): 
+Introduced the RAG architecture, proving that grounding LLM outputs in a retrieved knowledge base significantly reduces hallucination and improves factual and procedural accuracy — critical when an AI agent is rewriting security-sensitive code.
+Sandboxed Code Execution Research (Docker Inc., 2022): 
+Highlighted containerization as a safe, isolated method for testing untrusted or AI-generated code changes prior to integration, directly informing the sandbox validation stage of this pipeline.
+5. Proposed Method
+The system implements a 
+Detect → Isolate → Remediate → Validate → Review
+ pipeline that keeps the multi-agent GenAI core decoupled from the live deployment path until a fix is proven safe. The five-stage architecture is illustrated in Figure 1 below:
+Figure 1: Five-Stage Self-Healing DevSecOps Pipeline Architecture
+The end-to-end workflow operates as follows:
+Step 1 (Detection & Isolation): 
+When a developer pushes unsafe code, the pipeline (GitHub Actions) blocks the deployment. One AI agent isolates the error log while a second agent simultaneously searches a private RAG knowledge base loaded with secure programming manuals and remediation standards.
+Step 2 (Autonomous Remediation): 
+The AI agent automatically rewrites the flagged code safely — for example, stripping out a hardcoded password and relocating it into a secure environment file — guided by the retrieved secure-coding context.
+Step 3 (Sandbox Validation – Unique Feature): 
+Before the fix is sent back to the developer, the system automatically launches an isolated background sandbox (Docker Container), runs tests on the AI's fix, and calculates a Confidence Score reflecting how likely the fix is to be correct and safe.
+Step 4 (Automated Pull Request): 
+If the Confidence Score is high and the sandbox tests pass, the system automatically creates a Pull Request (PR) on GitHub. The developer simply reviews the AI's clean fix and clicks “Merge,” preserving a human-in-the-loop checkpoint.
+6. Methodology
+Pipeline Integration: 
+Configuring GitHub Actions workflows to trigger on every push/PR event, embedding Trivy and Trufflehog as pre-merge security scanning steps.
+Multi-Agent Orchestration: 
+Building a LangGraph (or CrewAI) agent graph in Python where distinct agents are responsible for log isolation, RAG-based knowledge retrieval, and code remediation, with structured state passed between nodes.
+RAG Knowledge Base Construction: 
+Embedding secure coding guidelines, OWASP standards, and remediation playbooks into a vector store (ChromaDB / pgvector) for low-latency semantic retrieval during the remediation step.
+Sandbox Test Harness: 
+Programmatically spinning up a Docker container per fix attempt, running the existing test suite plus targeted security checks against the AI's patch, and computing a normalized Confidence Score.
+Webhook Bridge & Deployment: 
+Building a FastAPI webhook server that listens for GitHub pipeline-failure events and triggers the multi-agent framework asynchronously, then deploying the bridge service to a cloud environment.
+7. Hardware and Software Requirements
+Software Requirements:
+Operating System: 
+Windows / Linux / macOS
+Language: 
+Python 3.10+
+CI/CD Platform: 
+GitHub / GitHub Actions
+Security Scanners: 
+Trivy, Trufflehog
+Containerization: 
+Docker
+Multi-Agent Framework: 
+LangGraph or CrewAI
+Vector Database: 
+ChromaDB / pgvector
+LLM APIs: 
+Google Gemini API / OpenAI API
+Backend Framework: 
+FastAPI
+Hardware Requirements:
+Processor: 
+Intel i5 / AMD Ryzen 5 or equivalent
+Memory: 
+8 GB RAM minimum (16 GB recommended for local Docker sandboxing)
+Network: 
+Stable internet connection for GitHub webhooks and cloud LLM API communication
+8. Conclusion
+The Autonomous, Multi-Agent DevSecOps Pipeline demonstrates that vulnerability remediation in CI/CD systems no longer needs to be a purely manual, developer-bottlenecked process. By combining open-source security scanning, a coordinated multi-agent GenAI core grounded in retrieval-augmented secure-coding knowledge, and an isolated sandbox validation layer, this project delivers a self-healing pipeline that resolves security issues with minimal human effort while preserving a human-in-the-loop merge gate for accountability. The system fulfills the academic project requirements while laying a scalable foundation for production-grade autonomous DevSecOps tooling.
+9. References
+[1] Lewis et al. (2020)
+ — Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks. The foundational research establishing the RAG architecture used to ground the remediation agent's code fixes in secure-coding documentation.
+[2] Aqua Security (2023)
+ — Trivy: Comprehensive Vulnerability and Misconfiguration Scanner. Open-source documentation describing the scanning engine integrated into the pipeline's detection stage.
+[3] Trufflehog Project (2023)
+ — Trufflehog: Find Leaked Credentials. Documentation behind the secrets-detection scanner used to catch exposed API keys and passwords before deployment.
+[4] LangChain AI – LangGraph Documentation (2024)
+ — Building Stateful, Multi-Agent Applications with LLMs. Reference architecture for coordinating multiple specialized agents within a single workflow graph.
+[5] CrewAI Documentation (2024)
+ — Framework for Orchestrating Role-Playing, Autonomous AI Agents. An alternative multi-agent orchestration framework considered for the remediation and retrieval agents.
+[6] Docker Inc. (2022)
+ — Docker Documentation: Isolated Container Execution. Technical reference for the sandboxing approach used to safely validate AI-generated code fixes.
+[7] Google AI (2024)
+ — Gemini API Documentation. Reference for the underlying LLM capabilities driving the agents' log analysis and code-generation tasks.
+[8] FastAPI Documentation (2023)
+ — FastAPI: A Modern, Fast Web Framework for Python. The framework used to build the webhook bridge server connecting GitHub events to the multi-agent system.

@@ -148,6 +148,15 @@ class ScheduleScanRequest(BaseModel):
     alert_email: EmailStr
 
 
+class CreatePRRequest(BaseModel):
+    github_token: Optional[str] = None
+    repo_name: str
+    file_path: str
+    fixed_code: str
+    vulnerability_details: str
+    scan_id: str
+
+
 class RepoScanResponse(BaseModel):
     repo_scan_id: str
     repo_name: str

@@ -8,6 +8,7 @@ import re
 from typing import List, Dict, Any, Optional
 from datetime import datetime
 from dotenv import load_dotenv
+from backend.services.rag_service import get_rag_context
 
 load_dotenv()
 
@@ -69,7 +70,13 @@ def _gemini_fix(code: str, vulnerabilities: List[Dict], language: str, filename:
             for v in vulnerabilities[:5]
         ])
 
+        vuln_types = ", ".join(set([v["type"] for v in vulnerabilities]))
+        rag_context = get_rag_context(f"How to fix {vuln_types} vulnerabilities securely according to OWASP?")
+
         prompt = f"""You are a security expert. Fix ALL vulnerabilities in this {language} code.
+        
+CRITICAL SECURE CODING CONTEXT (OWASP GUIDELINES):
+{rag_context}
 
 VULNERABILITIES FOUND:
 {vuln_summary}

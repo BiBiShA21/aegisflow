@@ -18,7 +18,7 @@ load_dotenv()
 
 # ── Internal imports ──────────────────────────────────────────────
 from backend.database import init_db, scans_col, vulnerabilities_col, fixes_col, users_col, audit_logs_col, repo_scans_col
-from backend.models.schemas import RegisterRequest, LoginRequest, AnalyzeRequest, GenerateFixRequest, UpdateProfileRequest, GithubScanRequest, ScheduleScanRequest
+from backend.models.schemas import RegisterRequest, LoginRequest, AnalyzeRequest, GenerateFixRequest, UpdateProfileRequest, GithubScanRequest, ScheduleScanRequest, CreatePRRequest
 from backend.services.auth_service import register_user, login_user, decode_token, get_user_by_id, update_user_profile
 from backend.agents.detection_agent import detect_vulnerabilities, get_risk_level, detect_language
 from backend.agents.fix_agent import generate_fix, analyze_with_gemini, get_recommendation
@@ -695,6 +695,26 @@ async def list_scheduled_scans(user: dict = Depends(require_user)):
         for job in jobs:
             job["_id"] = str(job["_id"])
         return {"success": True, "jobs": jobs}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+from backend.services.pr_service import create_remediation_pr
+
+@app.post("/api/analyze/github/pr")
+async def create_github_pr(req: CreatePRRequest, user: dict = Depends(require_user)):
+    """Autonomous Stage 4: Create a GitHub PR with the fixed code."""
+    try:
+        pr_url = create_remediation_pr(
+            github_token=req.github_token,
+            repo_name=req.repo_name,
+            file_path=req.file_path,
+            fixed_code=req.fixed_code,
+            vulnerability_details=req.vulnerability_details
+        )
+        if pr_url:
+            return {"success": True, "pr_url": pr_url}
+        else:
+            raise HTTPException(status_code=400, detail="Failed to create PR. Ensure GITHUB_PAT is set.")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 @app.get("/api/github-scans")
