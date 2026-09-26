@@ -84,3 +84,6 @@ def repo_scans_col():
 def workspaces_col():
     return get_db().workspaces
 
+def scheduled_scans_col():
+    return get_db().scheduled_scans
+

@@ -18,12 +18,14 @@ load_dotenv()
 
 # ── Internal imports ──────────────────────────────────────────────
 from backend.database import init_db, scans_col, vulnerabilities_col, fixes_col, users_col, audit_logs_col, repo_scans_col
-from backend.models.schemas import RegisterRequest, LoginRequest, AnalyzeRequest, GenerateFixRequest, UpdateProfileRequest, GithubScanRequest
+from backend.models.schemas import RegisterRequest, LoginRequest, AnalyzeRequest, GenerateFixRequest, UpdateProfileRequest, GithubScanRequest, ScheduleScanRequest
 from backend.services.auth_service import register_user, login_user, decode_token, get_user_by_id, update_user_profile
 from backend.agents.detection_agent import detect_vulnerabilities, get_risk_level, detect_language
 from backend.agents.fix_agent import generate_fix, analyze_with_gemini, get_recommendation
 from backend.services.download_service import generate_pdf_report, generate_markdown_report, generate_zip_download, get_file_extension, generate_repo_pdf_report
 from backend.agents.github_agent import GithubAgent
+from backend.services.scheduling_service import start_scheduler, shutdown_scheduler, schedule_new_scan, cancel_scheduled_scan
+from backend.database import scheduled_scans_col
 
 # ── App Setup ─────────────────────────────────────────────────────
 app = FastAPI(
@@ -86,6 +88,7 @@ async def error_middleware(request: Request, call_next):
 @app.on_event("startup")
 async def startup():
     init_db()
+    start_scheduler()
     print("\n" + "="*55)
     print("   AegisFlow Backend v2.0 — STARTED")
     print("="*55)
@@ -94,6 +97,10 @@ async def startup():
     print("[Health] http://127.0.0.1:8000/api/health")
     print("[OK]     CORS Enabled for http://127.0.0.1:3000")
     print("="*55 + "\n")
+
+@app.on_event("shutdown")
+async def shutdown():
+    shutdown_scheduler()
 
 
 # ── Health ────────────────────────────────────────────────────────
@@ -649,7 +656,47 @@ async def analyze_github(req: GithubScanRequest, user: dict = Depends(require_us
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"GitHub scan failed: {str(e)}")
 
+@app.post("/api/analyze/github/schedule")
+async def schedule_github_scan(req: ScheduleScanRequest, user: dict = Depends(require_user)):
+    """Schedule automated daily/weekly scans for a GitHub repository"""
+    try:
+        job_id = schedule_new_scan(
+            user_id=user["id"],
+            repo_url=req.repo_url,
+            branch=req.branch,
+            schedule_type=req.schedule_type,
+            alert_email=req.alert_email
+        )
+        return {"success": True, "job_id": job_id, "message": f"Successfully scheduled {req.schedule_type} scan for {req.repo_url}"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
+
+@app.delete("/api/analyze/github/schedule/{job_id}")
+async def cancel_github_scan(job_id: str, user: dict = Depends(require_user)):
+    """Cancel a scheduled GitHub scan"""
+    try:
+        success = cancel_scheduled_scan(job_id, user["id"])
+        if success:
+            return {"success": True, "message": "Scheduled scan cancelled"}
+        else:
+            raise HTTPException(status_code=404, detail="Scheduled scan not found or access denied")
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/analyze/github/schedule")
+async def list_scheduled_scans(user: dict = Depends(require_user)):
+    """List all scheduled scans for the current user"""
+    try:
+        jobs = list(scheduled_scans_col().find({"user_id": user["id"], "is_active": True}))
+        for job in jobs:
+            job["_id"] = str(job["_id"])
+        return {"success": True, "jobs": jobs}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 @app.get("/api/github-scans")
 async def get_github_scans(
     page: int = 1,

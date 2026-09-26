@@ -28,6 +28,12 @@ credentials.json
 
 # IDE & OS Files
 .idea/
+
+# Local Project Files
+DEPLOYMENT.md
+*.docx
+*.bat
+TROUBLESHOOTING.md
 .vscode/
 .DS_Store
 Thumbs.db

@@ -141,6 +141,13 @@ class GithubScanRequest(BaseModel):
     workspace_id: Optional[str] = None
 
 
+class ScheduleScanRequest(BaseModel):
+    repo_url: str
+    branch: str = "main"
+    schedule_type: str = "daily"  # "daily" or "weekly"
+    alert_email: EmailStr
+
+
 class RepoScanResponse(BaseModel):
     repo_scan_id: str
     repo_name: str
