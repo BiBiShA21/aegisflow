@@ -18,7 +18,7 @@ load_dotenv()
 
 # ── Internal imports ──────────────────────────────────────────────
 from backend.database import init_db, scans_col, vulnerabilities_col, fixes_col, users_col, audit_logs_col, repo_scans_col
-from backend.models.schemas import RegisterRequest, LoginRequest, AnalyzeRequest, GenerateFixRequest, UpdateProfileRequest, GithubScanRequest, ScheduleScanRequest, CreatePRRequest
+from backend.models.schemas import RegisterRequest, LoginRequest, AnalyzeRequest, GenerateFixRequest, UpdateProfileRequest, GithubScanRequest, ScheduleScanRequest, CreatePRRequest, AutonomousPipelineRequest
 from backend.services.auth_service import register_user, login_user, decode_token, get_user_by_id, update_user_profile
 from backend.agents.detection_agent import detect_vulnerabilities, get_risk_level, detect_language
 from backend.agents.fix_agent import generate_fix, analyze_with_gemini, get_recommendation
@@ -717,6 +717,29 @@ async def create_github_pr(req: CreatePRRequest, user: dict = Depends(require_us
             raise HTTPException(status_code=400, detail="Failed to create PR. Ensure GITHUB_PAT is set.")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+from backend.agents.orchestrator import run_autonomous_pipeline
+
+@app.post("/api/analyze/autonomous")
+async def run_pipeline(req: AutonomousPipelineRequest, user: dict = Depends(require_user)):
+    """Trigger the full LangGraph-based multi-agent self-healing pipeline."""
+    try:
+        payload = req.model_dump()
+        if not payload.get("github_token"):
+             payload["github_token"] = os.getenv("GITHUB_PAT")
+             
+        final_state = run_autonomous_pipeline(payload)
+        return {
+            "success": True,
+            "vulnerabilities": final_state.get("vulnerabilities", []),
+            "fixed_code": final_state.get("fixed_code"),
+            "confidence": final_state.get("confidence"),
+            "pr_url": final_state.get("pr_url"),
+            "messages": final_state.get("messages", [])
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.get("/api/github-scans")
 async def get_github_scans(
     page: int = 1,

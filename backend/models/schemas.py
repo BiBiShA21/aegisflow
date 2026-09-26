@@ -157,7 +157,16 @@ class CreatePRRequest(BaseModel):
     scan_id: str
 
 
+class AutonomousPipelineRequest(BaseModel):
+    code: str
+    language: Optional[str] = None
+    repo_name: str
+    file_path: str
+    github_token: Optional[str] = None
+    scan_id: Optional[str] = None
+
 class RepoScanResponse(BaseModel):
+
     repo_scan_id: str
     repo_name: str
     branch: str
