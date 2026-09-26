@@ -9,6 +9,7 @@ from typing import List, Dict, Any, Optional
 from datetime import datetime
 from dotenv import load_dotenv
 from backend.services.rag_service import get_rag_context
+from backend.services.sandbox_service import validate_code_in_sandbox
 
 load_dotenv()
 
@@ -104,11 +105,24 @@ Return ONLY a valid JSON object with this exact structure (no markdown, no extra
         text = text.strip()
 
         result = json.loads(text)
+        fixed_code = result.get("fixed_code", code)
+        base_confidence = float(result.get("confidence", 0.90))
+        
+        # Phase 3: Validate the fixed code in the isolated Docker Sandbox
+        sandbox_result = validate_code_in_sandbox(fixed_code, language)
+        final_confidence = min(1.0, base_confidence + sandbox_result["confidence_bonus"])
+        
+        changes = result.get("changes", ["Security vulnerabilities remediated"])
+        if sandbox_result["success"] and sandbox_result["confidence_bonus"] > 0:
+            changes.append(f"✅ Sandbox Validation: {sandbox_result['message']}")
+        elif not sandbox_result["success"]:
+            changes.append(f"❌ Sandbox Validation Failed: {sandbox_result['message']}")
+
         return {
-            "fixed_code": result.get("fixed_code", code),
+            "fixed_code": fixed_code,
             "explanation": result.get("explanation", "AI-generated fix applied"),
-            "changes": result.get("changes", ["Security vulnerabilities remediated"]),
-            "confidence": float(result.get("confidence", 0.90)),
+            "changes": changes,
+            "confidence": round(final_confidence, 2),
             "quality_score": 0.92,
             "source": "gemini-2.0-flash"
         }
