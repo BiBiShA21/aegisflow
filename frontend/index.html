@@ -1,0 +1,1646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AegisFlow — Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+    /* Custom Scrollbar for better UI */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f0f4f8;display:flex;min-height:100vh;color:#0f172a}
+
+/* SIDEBAR */
+.sidebar{width:240px;background:white;border-right:1px solid #e5e7eb;display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;box-shadow:2px 0 8px rgba(0,0,0,0.04)}
+.sidebar-brand{padding:24px 20px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;gap:10px}
+.brand-icon{width:36px;height:36px;background:linear-gradient(135deg,#06b6d4,#3b82f6);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.brand-name{font-size:17px;font-weight:700;color:#0f172a}
+.nav{padding:16px 12px;flex:1;overflow-y:auto}
+.nav-section{font-size:10px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.8px;padding:0 8px;margin-bottom:8px;margin-top:16px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;cursor:pointer;color:#64748b;font-size:13.5px;font-weight:500;transition:all 0.15s;text-decoration:none;margin-bottom:2px}
+.nav-item:hover{background:#f8fafc;color:#0f172a}
+.nav-item.active{background:linear-gradient(135deg,rgba(6,182,212,0.12),rgba(249,115,22,0.08));color:#06b6d4;font-weight:600}
+.nav-item .icon{width:18px;text-align:center;font-size:16px}
+.sidebar-user{padding:16px;border-top:1px solid #f1f5f9}
+.user-card{display:flex;align-items:center;gap:10px;padding:10px;border-radius:9px;cursor:pointer;transition:all 0.15s}
+.user-card:hover{background:#f8fafc}
+.user-avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:white;flex-shrink:0}
+.user-info{flex:1;min-width:0}
+.user-name{font-size:13px;font-weight:600;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-role{font-size:11px;color:#94a3b8}
+.user-arrow{color:#94a3b8;font-size:12px}
+
+/* MAIN */
+.main{margin-left:240px;flex:1;display:flex;flex-direction:column;min-height:100vh;transition:margin-left 0.3s ease}
+.main.expanded{margin-left:0}
+.sidebar{width:240px;background:white;border-right:1px solid #e5e7eb;display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;box-shadow:2px 0 8px rgba(0,0,0,0.04);transition:transform 0.3s ease}
+.sidebar.collapsed{transform:translateX(-100%)}
+.topbar{background:white;border-bottom:1px solid #e5e7eb;padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.topbar-left h1{font-size:20px;font-weight:700;color:#0f172a}
+.topbar-left p{font-size:12px;color:#94a3b8;margin-top:1px}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.search-box{display:flex;align-items:center;gap:8px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;padding:8px 14px;width:220px}
+.search-box input{border:none;background:none;font-size:13px;color:#0f172a;outline:none;width:100%}
+.search-box svg{color:#94a3b8;flex-shrink:0}
+.notif-btn{width:36px;height:36px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#64748b;position:relative}
+.notif-dot{position:absolute;top:6px;right:6px;width:8px;height:8px;background:#ef4444;border-radius:50%;border:2px solid white}
+.topbar-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:white;cursor:pointer}
+.content{padding:28px 32px;flex:1}
+
+/* STATS CARDS */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.stat-card{background:white;border-radius:12px;padding:20px 24px;border:1px solid #f1f5f9;position:relative;overflow:hidden}
+.stat-card:hover{box-shadow:0 4px 16px rgba(0,0,0,0.06);transform:translateY(-1px);transition:all 0.2s}
+.stat-label{font-size:12px;color:#94a3b8;font-weight:500;margin-bottom:6px}
+.stat-value{font-size:28px;font-weight:700;color:#0f172a;line-height:1}
+.stat-change{font-size:11px;margin-top:6px;display:flex;align-items:center;gap:4px}
+.stat-change.up{color:#10b981}
+.stat-change.down{color:#ef4444}
+.stat-icon{position:absolute;top:16px;right:16px;width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.stat-icon.teal{background:rgba(6,182,212,0.1)}
+.stat-icon.red{background:rgba(239,68,68,0.1)}
+.stat-icon.green{background:rgba(16,185,129,0.1)}
+.stat-icon.amber{background:rgba(245,158,11,0.1)}
+
+/* GRID LAYOUT */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.grid-3{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px}
+.card{background:white;border-radius:12px;border:1px solid #f1f5f9;overflow:hidden}
+.card-head{padding:18px 20px;border-bottom:1px solid #f8fafc;display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:14px;font-weight:600;color:#0f172a}
+.card-sub{font-size:11px;color:#94a3b8;margin-top:2px}
+.card-body{padding:20px}
+.view-all{font-size:12px;color:#06b6d4;text-decoration:none;font-weight:500}
+.view-all:hover{text-decoration:underline}
+
+/* UPLOAD */
+.upload-zone{border:2px dashed #d1fae5;border-radius:12px;padding:28px;text-align:center;background:linear-gradient(135deg,rgba(6,182,212,0.03),rgba(249,115,22,0.02));cursor:pointer;transition:all 0.2s;position:relative}
+.upload-zone:hover,.upload-zone.drag{border-color:#06b6d4;background:rgba(6,182,212,0.05)}
+.upload-icon{font-size:40px;margin-bottom:10px}
+.upload-title{font-size:14px;font-weight:600;color:#0f172a;margin-bottom:4px}
+.upload-sub{font-size:12px;color:#94a3b8;margin-bottom:14px}
+.upload-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.btn{padding:8px 16px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s;border:none;display:inline-flex;align-items:center;gap:6px}
+.btn-teal{background:linear-gradient(135deg,#06b6d4,#0891b2);color:white}
+.btn-teal:hover{box-shadow:0 4px 12px rgba(6,182,212,0.35);transform:translateY(-1px)}
+.btn-coral{background:linear-gradient(135deg,#f97316,#ea580c);color:white}
+.btn-coral:hover{box-shadow:0 4px 12px rgba(249,115,22,0.35);transform:translateY(-1px)}
+.btn-green{background:linear-gradient(135deg,#10b981,#059669);color:white}
+.btn-green:hover{box-shadow:0 4px 12px rgba(16,185,129,0.35);transform:translateY(-1px)}
+.btn-ghost{background:#f1f5f9;color:#64748b}
+.btn-ghost:hover{background:#e2e8f0}
+.btn-outline{background:white;border:1.5px solid #e5e7eb;color:#374151}
+.btn-outline:hover{border-color:#06b6d4;color:#06b6d4}
+.btn:disabled{opacity:0.6;cursor:not-allowed;transform:none!important}
+
+/* LANG PILLS */
+.lang-pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.lang-pill{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:500;cursor:pointer;border:1.5px solid #e5e7eb;background:white;color:#64748b;transition:all 0.15s}
+.lang-pill:hover,.lang-pill.active{border-color:#06b6d4;color:#06b6d4;background:rgba(6,182,212,0.05)}
+
+/* CODE EDITOR */
+.code-editor{background:#0f172a;border-radius:10px;overflow:hidden}
+.code-editor-head{padding:10px 16px;background:#1e293b;display:flex;align-items:center;justify-content:space-between}
+.code-editor-dots{display:flex;gap:6px}
+.dot{width:10px;height:10px;border-radius:50%}
+.dot.red{background:#ef4444}
+.dot.yellow{background:#f59e0b}
+.dot.green{background:#10b981}
+.code-textarea{width:100%;background:#0f172a;color:#e2e8f0;border:none;padding:16px;font-family:'Fira Code','Courier New',monospace;font-size:12.5px;line-height:1.7;resize:vertical;min-height:220px;outline:none;tab-size:2}
+.code-textarea::placeholder{color:#334155}
+
+/* VULN CARDS */
+.vuln-list{display:flex;flex-direction:column;gap:8px;max-height:400px;overflow-y:auto}
+.vuln-card{border-radius:8px;padding:12px 14px;border-left:3px solid;background:#f8fafc;transition:all 0.15s}
+.vuln-card:hover{transform:translateX(2px)}
+.vuln-card.CRITICAL{border-left-color:#ef4444;background:rgba(239,68,68,0.04)}
+.vuln-card.HIGH{border-left-color:#f97316;background:rgba(249,115,22,0.04)}
+.vuln-card.MEDIUM{border-left-color:#f59e0b;background:rgba(245,158,11,0.04)}
+.vuln-card.LOW{border-left-color:#10b981;background:rgba(16,185,129,0.04)}
+.vuln-head{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.vuln-title{font-size:13px;font-weight:600;color:#0f172a}
+.severity-badge{padding:2px 7px;border-radius:12px;font-size:10px;font-weight:600}
+.severity-badge.CRITICAL{background:#fee2e2;color:#991b1b}
+.severity-badge.HIGH{background:#ffedd5;color:#9a3412}
+.severity-badge.MEDIUM{background:#fef9c3;color:#92400e}
+.severity-badge.LOW{background:#dcfce7;color:#166534}
+.vuln-desc{font-size:11px;color:#64748b;margin-bottom:6px}
+.vuln-meta{display:flex;gap:12px;font-size:10px;color:#94a3b8}
+.conf-bar{height:3px;border-radius:2px;background:#e5e7eb;margin-top:6px}
+.conf-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,#06b6d4,#10b981)}
+.empty-state{text-align:center;padding:40px 20px;color:#94a3b8}
+.empty-icon{font-size:40px;margin-bottom:10px}
+.empty-title{font-size:14px;font-weight:500;color:#64748b;margin-bottom:4px}
+.empty-sub{font-size:12px}
+
+/* DIFF VIEWER */
+.diff-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#e5e7eb;border-radius:8px;overflow:hidden}
+.diff-pane{background:#0f172a;padding:14px;font-family:monospace;font-size:11px;line-height:1.7;overflow-x:auto;max-height:300px;overflow-y:auto}
+.diff-pane-head{background:#1e293b;padding:8px 14px;font-size:11px;font-weight:600}
+.diff-pane-head.original{color:#ef4444}
+.diff-pane-head.fixed{color:#10b981}
+.diff-line{display:flex;gap:8px}
+.diff-line.removed{color:#fca5a5;background:rgba(239,68,68,0.1)}
+.diff-line.added{color:#86efac;background:rgba(16,185,129,0.1)}
+.diff-line.neutral{color:#94a3b8}
+
+/* SCAN HISTORY TABLE */
+.history-table{width:100%;border-collapse:collapse}
+.history-table th{text-align:left;padding:10px 14px;font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #f1f5f9}
+.history-table td{padding:12px 14px;font-size:12.5px;border-bottom:1px solid #f8fafc;color:#374151;vertical-align:middle}
+.history-table tr:hover td{background:#f8fafc}
+.history-table tr:last-child td{border-bottom:none}
+.risk-badge{padding:2px 8px;border-radius:12px;font-size:10px;font-weight:600}
+.risk-badge.CRITICAL{background:#fee2e2;color:#991b1b}
+.risk-badge.HIGH{background:#ffedd5;color:#9a3412}
+.risk-badge.MEDIUM{background:#fef9c3;color:#92400e}
+.risk-badge.LOW{background:#dcfce7;color:#166534}
+.risk-badge.SAFE{background:#f0fdf4;color:#166534}
+.action-btns{display:flex;gap:6px}
+.icon-btn{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;border:1px solid #e5e7eb;background:white;transition:all 0.15s}
+.icon-btn:hover{border-color:#06b6d4;color:#06b6d4}
+
+/* DOWNLOAD BTNS */
+.download-section{display:flex;gap:8px;flex-wrap:wrap;padding:16px 20px;background:#f8fafc;border-top:1px solid #f1f5f9}
+.dl-btn{padding:8px 14px;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;border:1.5px solid;transition:all 0.15s;display:flex;align-items:center;gap:6px;background:white}
+.dl-btn.pdf{border-color:#ef4444;color:#ef4444}
+.dl-btn.pdf:hover{background:#fef2f2}
+.dl-btn.md{border-color:#8b5cf6;color:#8b5cf6}
+.dl-btn.md:hover{background:#f5f3ff}
+.dl-btn.code{border-color:#06b6d4;color:#06b6d4}
+.dl-btn.code:hover{background:#ecfeff}
+.dl-btn.zip{border-color:#f97316;color:#f97316}
+.dl-btn.zip:hover{background:#fff7ed}
+.dl-btn:disabled{opacity:0.4;cursor:not-allowed}
+
+/* AI EXPLANATION */
+.ai-card{background:linear-gradient(135deg,rgba(6,182,212,0.05),rgba(249,115,22,0.03));border:1px solid rgba(6,182,212,0.15);border-radius:10px;padding:16px;margin-bottom:14px}
+.ai-header{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:13px;font-weight:600;color:#0f172a}
+.ai-badge{background:linear-gradient(135deg,#06b6d4,#3b82f6);color:white;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px}
+.ai-text{font-size:12px;color:#64748b;line-height:1.7}
+
+/* QUICK ACTIONS */
+.quick-actions{display:flex;gap:10px;flex-wrap:wrap}
+.quick-btn{flex:1;min-width:120px;padding:12px 16px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all 0.2s;text-align:center}
+.quick-btn.new-scan{background:linear-gradient(135deg,#06b6d4,#0891b2);color:white}
+.quick-btn.upload{background:linear-gradient(135deg,#f97316,#ea580c);color:white}
+.quick-btn.reports{background:linear-gradient(135deg,#10b981,#059669);color:white}
+.quick-btn.project{background:linear-gradient(135deg,#8b5cf6,#7c3aed);color:white}
+.quick-btn:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,0.15)}
+
+/* PAGES */
+.page{display:none}
+.page.active{display:block}
+
+/* SPINNER */
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin .8s linear infinite;margin-right:6px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* TOAST */
+.toast-container{position:fixed;top:20px;right:20px;z-index:1000;display:flex;flex-direction:column;gap:8px}
+.toast{background:white;border-radius:10px;padding:12px 16px;box-shadow:0 8px 24px rgba(0,0,0,0.12);font-size:13px;display:flex;align-items:center;gap:10px;border-left:3px solid;max-width:320px;animation:slideIn 0.3s ease}
+.toast.success{border-left-color:#10b981}
+.toast.error{border-left-color:#ef4444}
+.toast.info{border-left-color:#06b6d4}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* PROFILE */
+.profile-header{background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 50%,#0e7490 100%);border-radius:12px;padding:32px;display:flex;align-items:center;gap:24px;margin-bottom:20px;color:white;position:relative;overflow:hidden}
+.profile-header::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(6,182,212,0.2) 0%,transparent 70%);border-radius:50%}
+.profile-avatar{width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:700;color:white;border:3px solid rgba(255,255,255,0.2);flex-shrink:0;position:relative;z-index:1}
+.profile-info{position:relative;z-index:1}
+.profile-name{font-size:22px;font-weight:700;margin-bottom:4px}
+.profile-role{font-size:13px;color:#94a3b8;margin-bottom:12px}
+.profile-stats{display:flex;gap:24px}
+.profile-stat{text-align:center}
+.profile-stat-value{font-size:20px;font-weight:700;color:white}
+.profile-stat-label{font-size:11px;color:#94a3b8}
+.profile-edit-btn{margin-left:auto;padding:10px 20px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;transition:all 0.2s;position:relative;z-index:1}
+.profile-edit-btn:hover{background:rgba(255,255,255,0.15)}
+.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.info-row{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid #f1f5f9}
+.info-row:last-child{border-bottom:none}
+.info-icon{width:32px;height:32px;border-radius:8px;background:#f0fdf4;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.info-label{font-size:11px;color:#94a3b8;margin-bottom:2px}
+.info-value{font-size:13px;font-weight:500;color:#0f172a}
+.activity-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f8fafc}
+.activity-item:last-child{border-bottom:none}
+.activity-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.settings-item{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-radius:9px;cursor:pointer;transition:all 0.15s}
+.settings-item:hover{background:#f8fafc}
+.settings-item-left{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500;color:#374151}
+.settings-item-icon{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px}
+.chevron{color:#94a3b8;font-size:12px}
+
+/* PAGINATION */
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-top:1px solid #f1f5f9}
+.page-info{font-size:12px;color:#94a3b8}
+.page-btns{display:flex;gap:4px}
+.page-btn{width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;border:1px solid #e5e7eb;background:white;color:#374151;transition:all 0.15s}
+.page-btn:hover,.page-btn.active{border-color:#06b6d4;color:#06b6d4;background:rgba(6,182,212,0.05)}
+.page-btn:disabled{opacity:0.4;cursor:not-allowed}
+
+/* INPUT EDIT */
+.edit-input{width:100%;padding:8px 12px;border:1.5px solid #e5e7eb;border-radius:7px;font-size:13px;outline:none;transition:border-color 0.2s}
+.edit-input:focus{border-color:#06b6d4;box-shadow:0 0 0 3px rgba(6,182,212,0.1)}
+
+/* RESPONSIVE */
+/* RESPONSIVE */
+@media(max-width:1100px){.stats-grid{grid-template-columns:repeat(2,1fr)}.grid-2,.grid-3{grid-template-columns:1fr}}
+
+/* DARK MODE */
+body.dark-mode { background: #0f172a; color: #f8fafc; }
+body.dark-mode .sidebar, body.dark-mode .topbar, body.dark-mode .card, body.dark-mode .stat-card, body.dark-mode .toast, body.dark-mode .notif-dropdown { background: #1e293b; border-color: #334155; }
+body.dark-mode .nav-item:hover, body.dark-mode .user-card:hover, body.dark-mode .settings-item:hover, body.dark-mode .history-table tr:hover td { background: #334155; }
+body.dark-mode .topbar-left h1, body.dark-mode .brand-name, body.dark-mode .card-title, body.dark-mode .user-name, body.dark-mode .stat-value, body.dark-mode .upload-title, body.dark-mode .vuln-title, body.dark-mode .info-value, body.dark-mode .notif-head { color: #f8fafc; }
+body.dark-mode .topbar-left p, body.dark-mode .nav-item, body.dark-mode .card-sub, body.dark-mode .upload-sub, body.dark-mode .vuln-desc, body.dark-mode .text-muted, body.dark-mode .empty-title, body.dark-mode .empty-sub, body.dark-mode .history-table td { color: #94a3b8; }
+body.dark-mode .search-box, body.dark-mode .notif-btn, body.dark-mode .notif-icon { background: #334155; border-color: #475569; }
+body.dark-mode .search-box input { color: #f8fafc; }
+body.dark-mode .upload-zone { background: rgba(6,182,212,0.1); border-color: #334155; }
+body.dark-mode .btn-outline { background: transparent; border-color: #475569; color: #f8fafc; }
+body.dark-mode .history-table th, body.dark-mode .history-table td, body.dark-mode .notif-item, body.dark-mode .notif-head { border-color: #334155; }
+body.dark-mode .info-row, body.dark-mode .activity-item, body.dark-mode .sidebar-user, body.dark-mode .sidebar-brand, body.dark-mode .card-head { border-color: #334155; }
+body.dark-mode select, body.dark-mode input.edit-input, body.dark-mode #historySearch, body.dark-mode #historyFilter { background: #334155; border-color: #475569; color: #f8fafc; }
+body.dark-mode .dl-btn { background: #334155; }
+body.dark-mode .vuln-card { background: #0f172a; }
+body.dark-mode .icon-btn, body.dark-mode .page-btn { background: #334155; border-color: #475569; color: #f8fafc; }
+
+/* NOTIFICATIONS */
+.notif-dropdown { position: absolute; top: 50px; right: 32px; width: 300px; background: white; border: 1px solid #e5e7eb; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 1000; overflow: hidden; }
+.notif-head { padding: 12px 16px; font-weight: 600; font-size: 13px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; }
+.notif-list { max-height: 300px; overflow-y: auto; }
+.notif-item { padding: 12px 16px; border-bottom: 1px solid #f8fafc; font-size: 12px; display: flex; gap: 10px; align-items: start; }
+.notif-item:last-child { border-bottom: none; }
+.notif-icon { width: 24px; height: 24px; border-radius: 5px; background: #f0fdf4; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 12px; }
+</style>
+</head>
+<body>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon">🛡️</div>
+    <span class="brand-name">AegisFlow</span>
+  </div>
+  <nav class="nav">
+    <div class="nav-section">Main</div>
+    <a class="nav-item active" onclick="showPage('dashboard',this)">
+      <span class="icon">📊</span> Dashboard
+    </a>
+    <a class="nav-item" onclick="showPage('scan',this)">
+      <span class="icon">🔍</span> New Scan
+    </a>
+    <a class="nav-item" onclick="showPage('github',this)">
+      <span class="icon">🐙</span> Scan Repository
+    </a>
+    <a class="nav-item" onclick="showPage('history',this)">
+      <span class="icon">🕐</span> Scan History
+    </a>
+    <a class="nav-item" onclick="showPage('analytics',this)">
+      <span class="icon">📈</span> Analytics
+    </a>
+    <div class="nav-section">Account</div>
+    <a class="nav-item" onclick="showPage('profile',this)">
+      <span class="icon">👤</span> Profile
+    </a>
+    <a class="nav-item" onclick="showPage('settings',this)">
+      <span class="icon">⚙️</span> Settings
+    </a>
+  </nav>
+  <div class="sidebar-user">
+    <div class="user-card" onclick="showPage('profile',null)">
+      <div class="user-avatar" id="sidebarAvatar" style="background:#06b6d4">B</div>
+      <div class="user-info">
+        <div class="user-name" id="sidebarName">Loading...</div>
+        <div class="user-role" id="sidebarOccupation">Developer</div>
+      </div>
+      <span class="user-arrow">›</span>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-left" style="display:flex;align-items:center;gap:12px">
+      <button class="icon-btn" onclick="toggleSidebar()" style="border:none;background:transparent;font-size:20px;padding:4px;box-shadow:none">⋮</button>
+      <div>
+        <h1 id="pageTitle">Dashboard</h1>
+        <p id="pageSubtitle">Overview of your security pipeline</p>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="search-box">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" placeholder="Search anything...">
+      </div>
+      <div class="notif-btn" onclick="document.getElementById('notifDropdown').style.display = document.getElementById('notifDropdown').style.display === 'none' ? 'block' : 'none'">
+        🔔
+        <div class="notif-dot" id="notifDot" style="display:none"></div>
+      </div>
+      <div class="notif-dropdown" id="notifDropdown" style="display:none">
+        <div class="notif-head">
+          Notifications
+          <button class="btn-ghost" style="font-size:10px;padding:2px 6px;border:none;cursor:pointer;background:transparent" onclick="clearNotifs()">Clear</button>
+        </div>
+        <div class="notif-list" id="notifList">
+          <div class="empty-state" style="padding:15px"><div class="empty-sub">No recent notifications</div></div>
+        </div>
+      </div>
+      <div class="topbar-avatar" id="topbarAvatar" style="background:#06b6d4">B</div>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- ═══════════════ DASHBOARD PAGE ═══════════════ -->
+    <div class="page active" id="page-dashboard">
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total Scans</div>
+          <div class="stat-value" id="totalScans">—</div>
+          <div class="stat-change up" id="scansChange">↑ Loading...</div>
+          <div class="stat-icon teal">📂</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Critical Issues</div>
+          <div class="stat-value" id="criticalIssues">—</div>
+          <div class="stat-change down" id="criticalChange">⚠ Needs attention</div>
+          <div class="stat-icon red">🚨</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Fix Success Rate</div>
+          <div class="stat-value" id="fixRate">—%</div>
+          <div class="stat-change up" id="fixChange">↑ AI-powered</div>
+          <div class="stat-icon green">✅</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Avg. Analysis Time</div>
+          <div class="stat-value" id="avgTime">—s</div>
+          <div class="stat-change up">⚡ Very Fast</div>
+          <div class="stat-icon amber">⚡</div>
+        </div>
+      </div>
+
+      <!-- Charts + Recent Scans -->
+      <div class="grid-3">
+        <!-- Trend Chart -->
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title">Vulnerability Trends</div>
+              <div class="card-sub">30 day chart</div>
+            </div>
+            <select style="font-size:12px;border:1px solid #e5e7eb;border-radius:6px;padding:4px 8px;color:#64748b;background:white;cursor:pointer">
+              <option>Last 30 days</option>
+              <option>Last 7 days</option>
+            </select>
+          </div>
+          <div class="card-body">
+            <canvas id="trendChart" height="130"></canvas>
+          </div>
+        </div>
+
+        <!-- Recent Scans -->
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Recent Scans</div>
+            <a class="view-all" onclick="showPage('history',null)">View All</a>
+          </div>
+          <div class="card-body" style="padding:0">
+            <div id="recentScansList" style="padding:8px 12px">
+              <div class="empty-state"><div class="empty-icon">📋</div><div class="empty-sub">No scans yet</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Donut + Quick Actions -->
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-head"><div class="card-title">Vulnerability Breakdown</div></div>
+          <div class="card-body" style="display:flex;align-items:center;gap:24px">
+            <canvas id="donutChart" width="140" height="140" style="flex-shrink:0"></canvas>
+            <div id="donutLegend" style="flex:1"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-title">Quick Actions</div></div>
+          <div class="card-body">
+            <div class="quick-actions">
+              <button class="quick-btn new-scan" onclick="showPage('scan',null)">🔍 New Scan</button>
+              <button class="quick-btn upload" onclick="showPage('scan',null)">📁 Upload Code</button>
+              <button class="quick-btn reports" onclick="showPage('history',null)">📊 View Reports</button>
+              <button class="quick-btn project" onclick="showPage('analytics',null)">📈 Analytics</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ SCAN PAGE ═══════════════ -->
+    <div class="page" id="page-scan">
+      <div class="grid-2">
+        <!-- Upload + Code Editor -->
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="card">
+            <div class="card-head"><div class="card-title">📁 Upload Code</div></div>
+            <div class="card-body">
+              <div class="upload-zone" id="uploadZone">
+                <div class="upload-icon">☁️</div>
+                <div class="upload-title">Upload Files or Folders</div>
+                <div class="upload-sub">Python, Java, JS, Go, Ruby, PHP, C/C++, Swift, TypeScript</div>
+                <div class="upload-btns" onclick="event.stopPropagation()">
+                  <button class="btn btn-teal" onclick="document.getElementById('fileInput').click()">📄 Files</button>
+                  <button class="btn btn-coral" onclick="selectFolder()">📁 Folder</button>
+                </div>
+                <input type="file" id="fileInput" multiple accept=".py,.js,.ts,.jsx,.tsx,.java,.go,.rb,.php,.c,.cpp,.h,.hpp,.swift" style="display:none" onchange="handleFileUpload(this.files, 'file')">
+                <input type="file" id="folderInput" webkitdirectory directory multiple style="display:none" onchange="handleFileUpload(this.files, 'folder')">
+              </div>
+              <div id="uploadedFiles" style="margin-top:10px;display:none">
+                <div style="font-size:12px;font-weight:600;color:#374151;margin-bottom:6px">Loaded Files:</div>
+                <div id="fileList" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title">📝 Code Editor</div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <span id="detectedLang" style="font-size:11px;background:rgba(6,182,212,0.1);color:#06b6d4;padding:2px 8px;border-radius:10px;display:none"></span>
+                <select id="langSelect" style="font-size:12px;border:1px solid #e5e7eb;border-radius:6px;padding:4px 8px;color:#374151;background:white;cursor:pointer">
+                  <option value="python">Python</option>
+                  <option value="javascript">JavaScript</option>
+                  <option value="typescript">TypeScript</option>
+                  <option value="java">Java</option>
+                  <option value="go">Go</option>
+                  <option value="ruby">Ruby</option>
+                  <option value="php">PHP</option>
+                  <option value="c">C</option>
+                  <option value="cpp">C++</option>
+                  <option value="swift">Swift</option>
+                </select>
+              </div>
+            </div>
+            <div class="card-body" style="padding:0">
+              <div class="code-editor">
+                <div class="code-editor-head">
+                  <div class="code-editor-dots"><div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div></div>
+                  <span style="font-size:11px;color:#64748b" id="editorFilename">untitled</span>
+                  <button class="btn btn-ghost" style="font-size:10px;padding:3px 8px" onclick="clearEditor()">Clear</button>
+                </div>
+                <textarea class="code-textarea" id="codeInput" placeholder="# Paste your code here or upload files above...&#10;&#10;# Example vulnerable Python:&#10;api_key = &quot;sk_live_12345678&quot;&#10;password = &quot;admin123&quot;&#10;&#10;import pickle&#10;def load_data(data):&#10;    return pickle.loads(data)  # Insecure!&#10;&#10;def get_user(id):&#10;    query = f&quot;SELECT * FROM users WHERE id = {id}&quot;  # SQL Injection!"></textarea>
+              </div>
+            </div>
+            <div style="padding:14px 16px;background:#f8fafc;border-top:1px solid #f1f5f9;display:flex;gap:8px;flex-wrap:wrap">
+              <button class="btn btn-teal" id="analyzeBtn" onclick="analyzeCode()" style="flex:1;justify-content:center;padding:10px">🔍 Analyze Code</button>
+              <button class="btn btn-green" id="fixBtn" onclick="generateFix()" style="flex:1;justify-content:center;padding:10px" disabled>✨ Generate Fix</button>
+              <button class="btn btn-ghost" onclick="clearEditor()">🔄 Clear</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Results Panel -->
+        <div style="display:flex;flex-direction:column;gap:16px;height:100%">
+          <!-- Gemini AI Card -->
+          <div class="card" id="geminiCard" style="display:none">
+            <div class="card-head"><div class="card-title">🤖 Gemini AI Analysis</div><span class="ai-badge">AI</span></div>
+            <div class="card-body">
+              <div class="ai-text" id="geminiText">Analyzing...</div>
+            </div>
+          </div>
+
+          <!-- Vulnerability Results -->
+          <div class="card" style="flex:1;display:flex;flex-direction:column;min-height:0">
+            <div class="card-head">
+              <div>
+                <div class="card-title">🔴 Vulnerabilities Found</div>
+                <div class="card-sub" id="vulnSubtitle">Run a scan to see results</div>
+              </div>
+              <span id="vulnCount" style="font-size:12px;background:#fee2e2;color:#991b1b;padding:2px 10px;border-radius:12px;font-weight:600;display:none"></span>
+            </div>
+            <div class="card-body" style="padding:12px;flex:1;display:flex;flex-direction:column;min-height:0">
+              <div id="vulnList" style="flex:1;overflow-y:auto;padding-right:5px">
+                <div class="empty-state">
+                  <div class="empty-icon">🛡️</div>
+                  <div class="empty-title">Ready to scan</div>
+                  <div class="empty-sub">Paste code or upload files, then click Analyze</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Diff Viewer (shows after fix) -->
+      <div class="card" id="diffCard" style="display:none;margin-top:16px">
+            <div class="card-head">
+              <div class="card-title">🔄 Code Diff Viewer</div>
+              <button class="btn btn-ghost" style="font-size:11px;padding:4px 10px" onclick="copyFixed()">📋 Copy Fixed</button>
+            </div>
+            <div class="card-body" style="padding:0">
+              <div class="diff-grid">
+                <div>
+                  <div class="diff-pane-head original">🔴 Original (Vulnerable)</div>
+                  <div class="diff-pane" id="originalPane"></div>
+                </div>
+                <div>
+                  <div class="diff-pane-head fixed">✅ Fixed (Secure)</div>
+                  <div class="diff-pane" id="fixedPane"></div>
+                </div>
+              </div>
+            </div>
+            <!-- Download Options -->
+            <div class="download-section">
+              <button class="dl-btn pdf" onclick="downloadReport('pdf')">📄 PDF Report</button>
+              <button class="dl-btn md" onclick="downloadReport('markdown')">📝 Markdown</button>
+              <button class="dl-btn code" onclick="downloadReport('code')">💾 Fixed Code</button>
+              <button class="dl-btn zip" onclick="downloadReport('zip')">📦 ZIP All</button>
+            </div>
+          </div>
+    </div>
+
+
+    <!-- ═══════════════ GITHUB SCAN PAGE ═══════════════ -->
+    <div class="page" id="page-github">
+      <div class="grid-2">
+        <!-- Input Form -->
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">🐙 GitHub Repository Scan</div>
+                <div class="card-sub">Analyze and fix repository issues</div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="form-group" style="margin-bottom:12px">
+                <label style="font-size:12px;font-weight:500;color:#374151;display:block;margin-bottom:4px">Repository URL *</label>
+                <input class="edit-input" id="gh-url" type="text" placeholder="https://github.com/owner/repo">
+              </div>
+              <div class="form-group" style="margin-bottom:12px">
+                <label style="font-size:12px;font-weight:500;color:#374151;display:block;margin-bottom:4px">Branch (optional)</label>
+                <input class="edit-input" id="gh-branch" type="text" placeholder="main">
+              </div>
+              <div class="form-group" style="margin-bottom:12px">
+                <label style="font-size:12px;font-weight:500;color:#374151;display:block;margin-bottom:4px">GitHub Token (optional, for private repos)</label>
+                <input class="edit-input" id="gh-token" type="password" autocomplete="new-password" placeholder="ghp_xxxxxxxxxxxx">
+              </div>
+              <div class="form-group" style="margin-bottom:16px">
+                <label style="font-size:12px;font-weight:500;color:#374151;display:flex;align-items:center;gap:6px">
+                  <input type="checkbox" id="gh-gemini" checked> Enable AI Executive Summary
+                </label>
+              </div>
+              <button class="btn btn-teal" id="ghAnalyzeBtn" onclick="analyzeGithubRepo()" style="width:100%;justify-content:center;padding:12px">🚀 Scan Repository</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Results -->
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="card" id="ghSummaryCard" style="display:none">
+            <div class="card-head">
+              <div>
+                <div class="card-title" id="ghRepoName">Repository</div>
+                <div class="card-sub" id="ghScanMeta">Scan Summary</div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="stats-grid" style="grid-template-columns:1fr 1fr;margin-bottom:16px">
+                <div class="stat-card" style="padding:12px"><div class="stat-label">Files Scanned</div><div class="stat-value" id="ghFilesScanned" style="font-size:20px">—</div></div>
+                <div class="stat-card" style="padding:12px"><div id="ghTotalVulnsLabel" class="stat-label">Total Vulns</div><div class="stat-value" id="ghTotalVulns" style="font-size:20px;color:#ef4444">—</div></div>
+              </div>
+              <div id="ghGeminiBox" class="ai-card" style="display:none">
+                <div class="ai-header">🤖 AI Executive Summary <span class="ai-badge">AI</span></div>
+                <div class="ai-text" id="ghGeminiText"></div>
+              </div>
+              <div id="ghTopFilesLabel" style="font-size:13px;font-weight:600;margin-bottom:8px">Top Vulnerable Files</div>
+              <div id="ghTopFiles"></div>
+              
+              <div style="margin-top:16px;padding-top:16px;border-top:1px solid #f1f5f9;">
+                <button class="btn btn-green" id="ghFixBtn" onclick="generateGithubFixes()" style="width:100%;justify-content:center;padding:10px;margin-bottom:16px">✨ Generate Fixes for Repository</button>
+                
+                <div id="ghDownloadSection" class="download-section" style="display:none">
+                  <div style="width:100%;font-size:12px;font-weight:600;color:#64748b;margin-bottom:8px">Download Reports & Fixed Code:</div>
+                  <button class="dl-btn pdf" onclick="downloadGithubReport('pdf')">📄 PDF Report</button>
+                  <button class="dl-btn md" onclick="downloadGithubReport('markdown')">📝 Markdown</button>
+                  <button class="dl-btn zip" onclick="downloadGithubReport('zip')">📦 ZIP All (Includes Code)</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ HISTORY PAGE ═══════════════ -->
+    <div class="page" id="page-history">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">📋 Scan History</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input type="text" id="historySearch" placeholder="Search files..." style="padding:6px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:12px;outline:none;width:180px" oninput="loadHistory()">
+            <select id="historyFilter" style="padding:6px 10px;border:1px solid #e5e7eb;border-radius:7px;font-size:12px;background:white;outline:none" onchange="loadHistory()">
+              <option value="">All Status</option>
+              <option value="resolved">Resolved</option>
+              <option value="pending">Pending</option>
+            </select>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>File</th>
+                <th>Language</th>
+                <th>Date</th>
+                <th>Vulnerabilities</th>
+                <th>Risk</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody">
+              <tr><td colspan="7" style="text-align:center;padding:40px;color:#94a3b8">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination">
+          <div class="page-info" id="historyPageInfo">—</div>
+          <div class="page-btns">
+            <button class="page-btn" id="prevBtn" onclick="changePage(-1)" disabled>‹</button>
+            <button class="page-btn active" id="pageNum">1</button>
+            <button class="page-btn" id="nextBtn" onclick="changePage(1)" disabled>›</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ ANALYTICS PAGE ═══════════════ -->
+    <div class="page" id="page-analytics">
+      <div class="stats-grid" style="margin-bottom:20px">
+        <div class="stat-card"><div class="stat-label">Total Scans</div><div class="stat-value" id="a-total">—</div><div class="stat-icon teal">📂</div></div>
+        <div class="stat-card"><div class="stat-label">Total Vulnerabilities</div><div class="stat-value" id="a-vulns">—</div><div class="stat-icon red">🐛</div></div>
+        <div class="stat-card"><div class="stat-label">Fix Rate</div><div class="stat-value" id="a-fix">—%</div><div class="stat-icon green">✅</div></div>
+        <div class="stat-card"><div class="stat-label">Critical Issues</div><div class="stat-value" id="a-crit">—</div><div class="stat-icon red">🚨</div></div>
+      </div>
+      <div class="grid-2">
+        <div class="card"><div class="card-head"><div class="card-title">Severity Distribution</div></div><div class="card-body" style="height:300px;display:flex;justify-content:center;align-items:center"><canvas id="analyticsDonut"></canvas></div></div>
+        <div class="card"><div class="card-head"><div class="card-title">Top Vulnerability Types</div></div><div class="card-body" style="height:300px;display:flex;justify-content:center;align-items:center"><canvas id="analyticsBar"></canvas></div></div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ PROFILE PAGE ═══════════════ -->
+    <div class="page" id="page-profile">
+      <!-- Profile Header -->
+      <div class="profile-header">
+        <div class="profile-avatar" id="profileAvatar" style="background:#06b6d4">B</div>
+        <div class="profile-info">
+          <div class="profile-name" id="profileName">Loading...</div>
+          <div class="profile-role" id="profileOccupationText">Developer</div>
+          <div class="profile-stats">
+            <div class="profile-stat"><div class="profile-stat-value" id="p-scans">—</div><div class="profile-stat-label">Total Scans</div></div>
+            <div class="profile-stat"><div class="profile-stat-value" id="p-critical">—</div><div class="profile-stat-label">Critical Issues</div></div>
+            <div class="profile-stat"><div class="profile-stat-value" id="p-fix">—%</div><div class="profile-stat-label">Fix Success</div></div>
+          </div>
+        </div>
+        <button class="profile-edit-btn" onclick="toggleEditMode()">✎ Edit Profile</button>
+      </div>
+
+      <div class="profile-grid">
+        <!-- Account Info -->
+        <div class="card">
+            <div class="card-head"><div class="card-title">Account Information</div></div>
+            <div class="card-body" id="profileInfoSection">
+              <div class="info-row"><div class="info-icon">📧</div><div><div class="info-label">Email</div><div class="info-value" id="p-email">—</div></div></div>
+              <div class="info-row"><div class="info-icon">👤</div><div><div class="info-label">Username</div><div class="info-value" id="p-username">—</div></div></div>
+              <div class="info-row"><div class="info-icon">🏢</div><div><div class="info-label">Organization</div><div class="info-value" id="p-org">—</div></div></div>
+              <div class="info-row"><div class="info-icon">💼</div><div><div class="info-label">Occupation</div><div class="info-value" id="p-occupation">-</div></div></div>
+              <div class="info-row"><div class="info-icon">📍</div><div><div class="info-label">Location</div><div class="info-value" id="p-location">—</div></div></div>
+              <div class="info-row"><div class="info-icon">📅</div><div><div class="info-label">Member Since</div><div class="info-value" id="p-joined">—</div></div></div>
+            </div>
+            <div class="card-body" id="profileEditSection" style="display:none">
+              <div class="form-group" style="margin-bottom:12px"><label style="font-size:12px;font-weight:500;color:#374151;display:block;margin-bottom:4px">Full Name</label><input class="edit-input" id="edit-name" type="text"></div>
+              <div class="form-group" style="margin-bottom:12px"><label style="font-size:12px;font-weight:500;color:#374151;display:block;margin-bottom:4px">Occupation</label><input class="edit-input" id="edit-occupation" type="text"></div>
+              <div class="form-group" style="margin-bottom:12px"><label style="font-size:12px;font-weight:500;color:#374151;display:block;margin-bottom:4px">Email</label><input class="edit-input" id="edit-email" type="email"></div>
+              <div class="form-group" style="margin-bottom:12px"><label style="font-size:12px;font-weight:500;color:#374151;display:block;margin-bottom:4px">Organization</label><input class="edit-input" id="edit-org" type="text"></div>
+
+              <div class="form-group" style="margin-bottom:16px"><label style="font-size:12px;font-weight:500;color:#374151;display:block;margin-bottom:4px">Location</label><input class="edit-input" id="edit-location" type="text"></div>
+              <div style="display:flex;gap:8px">
+                <button class="btn btn-teal" onclick="saveProfile()" style="flex:1;justify-content:center">Save Changes</button>
+                <button class="btn btn-ghost" onclick="toggleEditMode()">Cancel</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Activity + Settings -->
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <div class="card">
+              <div class="card-head"><div class="card-title">Recent Activity</div><a class="view-all" onclick="showPage('history',null)">View All</a></div>
+              <div class="card-body" style="padding:8px 16px" id="profileActivity">
+                <div class="empty-state"><div class="empty-sub">No recent activity</div></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-head"><div class="card-title">Account Settings</div></div>
+              <div class="card-body" style="padding:8px">
+                <div class="settings-item"><div class="settings-item-left"><div class="settings-item-icon" style="background:#dbeafe">✏️</div>Edit Profile</div><span class="chevron">›</span></div>
+                <div class="settings-item"><div class="settings-item-left"><div class="settings-item-icon" style="background:#fee2e2">🔒</div>Change Password</div><span class="chevron">›</span></div>
+                <div class="settings-item"><div class="settings-item-left"><div class="settings-item-icon" style="background:#dcfce7">🔔</div>Notification Preferences</div><span class="chevron">›</span></div>
+                <div class="settings-item" onclick="logout()" style="margin-top:4px"><div class="settings-item-left" style="color:#ef4444"><div class="settings-item-icon" style="background:#fee2e2">🚪</div>Sign Out</div><span class="chevron" style="color:#ef4444">›</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════ SETTINGS PAGE ═══════════════ -->
+      <div class="page" id="page-settings">
+        <div class="card" style="max-width:600px">
+          <div class="card-head"><div class="card-title">⚙️ Settings</div></div>
+          <div class="card-body">
+            <div class="settings-item"><div class="settings-item-left"><div class="settings-item-icon" style="background:#f3e8ff">🔔</div>Notifications</div><button class="btn btn-ghost" style="font-size:11px;padding:5px 10px">Manage</button></div>
+            <div class="settings-item"><div class="settings-item-left"><div class="settings-item-icon" style="background:#fef9c3">🎨</div>Theme</div><button class="btn btn-outline" style="font-size:11px;padding:5px 10px" onclick="toggleDarkMode()" id="themeBtn">Dark Mode</button></div>
+            <hr style="border:none;border-top:1px solid #f1f5f9;margin:8px 0">
+            <div class="settings-item" onclick="logout()"><div class="settings-item-left" style="color:#ef4444"><div class="settings-item-icon" style="background:#fee2e2">🚪</div>Sign Out</div></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+
+<script>
+const API = 'http://127.0.0.1:8000';
+let currentUser = null;
+let currentScanId = null;
+let currentPage = 1;
+let historyTotalPages = 1;
+
+// ─── AUTH ──────────────────────────────────────────────────────────
+
+function getToken() { return localStorage.getItem('access_token'); }
+
+function authHeaders() {
+  return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` };
+}
+
+async function apiFetch(url, opts = {}) {
+  const res = await fetch(API + url, { ...opts, headers: { ...authHeaders(), ...(opts.headers || {}) } });
+  if (res.status === 401) { logout(); return null; }
+  return res;
+}
+
+function logout() {
+  localStorage.clear();
+  window.location.href = 'login.html';
+}
+
+async function selectFolder() {
+  if (window.showDirectoryPicker) {
+    try {
+      const dirHandle = await window.showDirectoryPicker();
+      const files = [];
+      async function getFiles(handle, path) {
+        if (['node_modules', '.git', 'venv', '__pycache__', 'env', '.env'].includes(handle.name)) return;
+        for await (const entry of handle.values()) {
+          if (entry.kind === 'file') {
+            const file = await entry.getFile();
+            Object.defineProperty(file, 'webkitRelativePath', { value: path + entry.name });
+            files.push(file);
+          } else if (entry.kind === 'directory') {
+            await getFiles(entry, path + entry.name + '/');
+          }
+        }
+      }
+      await getFiles(dirHandle, dirHandle.name + '/');
+      handleFileUpload(files, 'folder');
+    } catch (e) {
+      if (e.name !== 'AbortError') document.getElementById('folderInput').click();
+    }
+  } else {
+    document.getElementById('folderInput').click();
+  }
+}
+
+// ─── INIT ──────────────────────────────────────────────────────────
+// Setup drag and drop
+document.addEventListener('DOMContentLoaded', () => {
+  const zone = document.getElementById('uploadZone');
+  if (zone) {
+    zone.addEventListener('dragenter', e => e.preventDefault());
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag'));
+    zone.addEventListener('drop', e => { e.preventDefault(); zone.classList.remove('drag'); handleFileUpload(e.dataTransfer.files); });
+  }
+});
+
+
+async function init() {
+  if (!getToken()) { window.location.href = 'login.html'; return; }
+
+  try {
+    const res = await apiFetch('/api/auth/me');
+    if (!res || !res.ok) { logout(); return; }
+    currentUser = await res.json();
+    renderUserInfo();
+    loadDashboard();
+  } catch { logout(); }
+}
+
+function renderUserInfo() {
+  if (!currentUser) return;
+  const initial = (currentUser.full_name || currentUser.username || 'U')[0].toUpperCase();
+  const color = currentUser.avatar_color || '#06b6d4';
+
+  document.getElementById('sidebarName').textContent = currentUser.full_name || currentUser.username;
+  document.getElementById('sidebarOccupation').textContent = currentUser.occupation || 'Developer';
+  document.getElementById('sidebarAvatar').textContent = initial;
+  document.getElementById('sidebarAvatar').style.background = color;
+  document.getElementById('topbarAvatar').textContent = initial;
+  document.getElementById('topbarAvatar').style.background = color;
+  document.getElementById('profileAvatar').textContent = initial;
+  document.getElementById('profileAvatar').style.background = color;
+  document.getElementById('profileName').textContent = currentUser.full_name || currentUser.username;
+  document.getElementById('profileOccupationText').textContent = currentUser.occupation || 'Developer';
+  document.getElementById('p-email').textContent = currentUser.email || '—';
+  document.getElementById('p-username').textContent = '@' + (currentUser.username || '—');
+  document.getElementById('p-org').textContent = currentUser.organization || '—';
+  document.getElementById('p-occupation').textContent = currentUser.occupation || '-';
+  document.getElementById('p-location').textContent = currentUser.location || '—';
+  document.getElementById('p-joined').textContent = currentUser.created_at ? currentUser.created_at.slice(0,10) : '—';
+  document.getElementById('p-scans').textContent = currentUser.total_scans ?? '0';
+  document.getElementById('p-critical').textContent = currentUser.critical_scans ?? '0';
+  document.getElementById('p-fix').textContent = '87';
+}
+
+// ─── PAGE NAVIGATION ───────────────────────────────────────────────
+
+function toggleSidebar() {
+  document.querySelector('.sidebar').classList.toggle('collapsed');
+  document.querySelector('.main').classList.toggle('expanded');
+}
+
+function showPage(name, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(`page-${name}`).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (el) el.classList.add('active');
+
+  const titles = { dashboard:'Dashboard', scan:'New Scan', github:'Scan Repository', history:'Scan History', analytics:'Analytics', profile:'Profile', settings:'Settings' };
+  const subs = { dashboard:'Overview of your security pipeline', scan:'Upload and analyze code', github:'Analyze full GitHub repositories', history:'All past security scans', analytics:'Security trends & insights', profile:'Manage your account', settings:'Configure AegisFlow' };
+  document.getElementById('pageTitle').textContent = titles[name] || name;
+  document.getElementById('pageSubtitle').textContent = subs[name] || '';
+
+  if (name === 'history') loadHistory();
+  if (name === 'dashboard') loadDashboard();
+  if (name === 'analytics') loadAnalytics();
+  if (name === 'profile') loadProfileActivity();
+}
+
+// ─── DASHBOARD ─────────────────────────────────────────────────────
+
+async function loadDashboard() {
+  try {
+    const res = await apiFetch('/api/dashboard');
+    if (!res || !res.ok) return;
+    const data = await res.json();
+
+    document.getElementById('totalScans').textContent = data.total_scans ?? 0;
+    document.getElementById('criticalIssues').textContent = data.critical_issues ?? 0;
+    document.getElementById('fixRate').textContent = (data.fix_success_rate ?? 0) + '%';
+    document.getElementById('avgTime').textContent = (data.avg_analysis_time ?? 2.3) + 's';
+    document.getElementById('scansChange').textContent = `↑ ${data.scans_this_week ?? 0} this week`;
+    document.getElementById('a-total').textContent = data.total_scans ?? 0;
+    document.getElementById('a-vulns').textContent = data.total_vulnerabilities ?? 0;
+    document.getElementById('a-fix').textContent = (data.fix_success_rate ?? 0) + '%';
+    document.getElementById('a-crit').textContent = data.critical_issues ?? 0;
+
+    renderRecentScans(data.recent_scans || []);
+    renderDonutChart(data.vulnerability_breakdown || {});
+    renderTrendChart();
+    renderAnalyticsCharts(data);
+  } catch (e) {
+    console.error('Dashboard error:', e);
+  }
+}
+
+function renderRecentScans(scans) {
+  const el = document.getElementById('recentScansList');
+  if (!scans.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-sub">No scans yet. Run your first scan!</div></div>';
+    return;
+  }
+  el.innerHTML = scans.map(s => `
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f8fafc;cursor:pointer" onclick="viewScan('${s._id}')">
+      <div style="width:30px;height:30px;background:#f1f5f9;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">📄</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12.5px;font-weight:500;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.filename || 'unknown'}</div>
+        <div style="font-size:11px;color:#94a3b8">${formatDate(s.created_at)}</div>
+      </div>
+      <span class="risk-badge ${s.risk_level}">${s.total_found || 0} ${s.risk_level === 'SAFE' ? 'Issues' : s.risk_level}</span>
+    </div>
+  `).join('');
+}
+
+let donutInstance = null;
+let trendInstance = null;
+
+function renderDonutChart(breakdown) {
+  const ctx = document.getElementById('donutChart').getContext('2d');
+  if (donutInstance) donutInstance.destroy();
+
+  const labels = ['Critical', 'High', 'Medium', 'Low'];
+  const values = [breakdown.CRITICAL||0, breakdown.HIGH||0, breakdown.MEDIUM||0, breakdown.LOW||0];
+  const colors = ['#ef4444','#f97316','#f59e0b','#10b981'];
+
+  if (values.every(v => v === 0)) {
+    document.getElementById('donutLegend').innerHTML = '<div class="empty-state"><div class="empty-sub">No vulnerabilities yet</div></div>';
+    return;
+  }
+
+  donutInstance = new Chart(ctx, {
+    type: 'doughnut',
+    data: { labels, datasets: [{ data: values, backgroundColor: colors, borderWidth: 0, hoverOffset: 4 }] },
+    options: { cutout: '65%', plugins: { legend: { display: false } }, responsive: false }
+  });
+
+  const total = values.reduce((a,b) => a+b, 0);
+  document.getElementById('donutLegend').innerHTML = labels.map((l, i) => `
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+      <div style="width:10px;height:10px;border-radius:50%;background:${colors[i]};flex-shrink:0"></div>
+      <span style="font-size:12px;color:#374151;flex:1">${l}</span>
+      <span style="font-size:12px;font-weight:600;color:#0f172a">${values[i]}</span>
+      <span style="font-size:11px;color:#94a3b8">${total > 0 ? Math.round(values[i]/total*100) : 0}%</span>
+    </div>
+  `).join('');
+}
+
+function renderTrendChart() {
+  const ctx = document.getElementById('trendChart').getContext('2d');
+  if (trendInstance) trendInstance.destroy();
+  const labels = Array.from({length: 10}, (_, i) => {
+    const d = new Date(); d.setDate(d.getDate() - (9-i));
+    return d.toLocaleDateString('en', {month:'short', day:'numeric'});
+  });
+  const data = Array.from({length: 10}, () => Math.floor(Math.random() * 20 + 5));
+
+  trendInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{ label: 'Vulnerabilities', data, borderColor: '#06b6d4', backgroundColor: 'rgba(6,182,212,0.08)', tension: 0.4, fill: true, pointRadius: 3, pointBackgroundColor: '#06b6d4', borderWidth: 2 }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#94a3b8' } },
+        y: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 10 }, color: '#94a3b8' } }
+      },
+      responsive: true,
+      maintainAspectRatio: true
+    }
+  });
+}
+
+let analyticsDonut = null, analyticsBar = null;
+
+function renderAnalyticsCharts(data) {
+  const bd = data.vulnerability_breakdown || {};
+  const ctx1 = document.getElementById('analyticsDonut').getContext('2d');
+  if (analyticsDonut) analyticsDonut.destroy();
+  analyticsDonut = new Chart(ctx1, {
+    type: 'doughnut',
+    data: {
+      labels: ['Critical', 'High', 'Medium', 'Low'],
+      datasets: [{ data: [bd.CRITICAL||0, bd.HIGH||0, bd.MEDIUM||0, bd.LOW||0], backgroundColor: ['#ef4444','#f97316','#f59e0b','#10b981'], borderWidth: 0 }]
+    },
+    options: { plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 12 } } }, responsive: true, maintainAspectRatio: false }
+  });
+
+  const ctx2 = document.getElementById('analyticsBar').getContext('2d');
+  if (analyticsBar) analyticsBar.destroy();
+  const topTypes = data.top_vulnerability_types || [];
+  analyticsBar = new Chart(ctx2, {
+    type: 'bar',
+    data: {
+      labels: topTypes.map(t => t.type.split(' ').slice(0,2).join(' ')),
+      datasets: [{ label: 'Count', data: topTypes.map(t => t.count), backgroundColor: 'rgba(6,182,212,0.7)', borderRadius: 6 }]
+    },
+    options: {
+      indexAxis: 'y',
+      plugins: { legend: { display: false } },
+      scales: { x: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 10 } } }, y: { grid: { display: false }, ticks: { font: { size: 10 } } } },
+      responsive: true, maintainAspectRatio: false
+    }
+  });
+}
+
+async function loadAnalytics() {
+  const res = await apiFetch('/api/dashboard');
+  if (res && res.ok) { const data = await res.json(); renderAnalyticsCharts(data); }
+}
+
+// ─── SCAN ──────────────────────────────────────────────────────────
+
+window.appFiles = [];
+window.activeFileIndex = -1;
+
+function handleFileUpload(files, type) {
+  if (!files || !files.length) return;
+  const fileArr = Array.from(files).filter(f =>
+    f.name.match(/\.(py|js|ts|jsx|tsx|java|go|rb|php|c|cpp|h|hpp|swift|txt|md)$/)
+  );
+
+  // Strict check
+  if (type === 'file') {
+    if (Array.from(files).some(f => f.webkitRelativePath && f.webkitRelativePath.includes('/'))) {
+      showToast('Folders not allowed here. Click Folder button.', 'error');
+      return;
+    }
+  } else if (type === 'folder') {
+    if (Array.from(files).every(f => !f.webkitRelativePath || !f.webkitRelativePath.includes('/'))) {
+      showToast('Files not allowed here. Click Files button.', 'error');
+      return;
+    }
+  }
+
+  if (!fileArr.length) { showToast('No supported files found', 'error'); return; }
+
+  window.appFiles = fileArr;
+  window.activeFileIndex = 0;
+  
+  document.getElementById('uploadedFiles').style.display = 'block';
+  renderFileList();
+  switchActiveFile(0);
+
+  showToast(`✓ Loaded ${fileArr.length} file(s)`, 'success');
+}
+
+function renderFileList() {
+  document.getElementById('fileList').innerHTML = window.appFiles.map((f, i) =>
+    `<span onclick="switchActiveFile(${i})" id="file-pill-${i}" style="background:${i === window.activeFileIndex ? '#06b6d4' : '#f1f5f9'};color:${i === window.activeFileIndex ? 'white' : '#374151'};border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;transition:0.2s;display:inline-block">📄 ${f.name}</span>`
+  ).join('');
+}
+
+async function switchActiveFile(index) {
+  if (index < 0 || index >= window.appFiles.length) return;
+  window.activeFileIndex = index;
+  renderFileList();
+  
+  const file = window.appFiles[index];
+  const ext = file.name.split('.').pop().toLowerCase();
+  const langMap = { py:'python', js:'javascript', ts:'typescript', java:'java', go:'go', rb:'ruby', php:'php', c:'c', cpp:'cpp', swift:'swift', jsx:'javascript', tsx:'typescript', h:'c', hpp:'cpp', txt:'text', md:'markdown' };
+  const detectedLang = langMap[ext] || 'python';
+  
+  document.getElementById('langSelect').value = detectedLang;
+  document.getElementById('editorFilename').textContent = file.name;
+  document.getElementById('detectedLang').textContent = detectedLang.toUpperCase();
+  document.getElementById('detectedLang').style.display = 'inline-block';
+  
+  try {
+    const text = await file.text();
+    document.getElementById('codeInput').value = text;
+    
+    // Clear scan results for new file
+    document.getElementById('vulnList').innerHTML = '<div class="empty-state"><div class="empty-icon">🛡️</div><div class="empty-title">Ready to scan</div><div class="empty-sub">Click Analyze to scan this file</div></div>';
+    document.getElementById('vulnSubtitle').textContent = 'Run a scan to see results';
+    document.getElementById('vulnCount').style.display = 'none';
+    document.getElementById('diffCard').style.display = 'none';
+    document.getElementById('geminiCard').style.display = 'none';
+    document.getElementById('fixBtn').disabled = true;
+    currentScanId = null;
+  } catch(e) {
+    showToast('Failed to read file', 'error');
+  }
+}
+
+function clearEditor() {
+  document.getElementById('codeInput').value = '';
+  document.getElementById('vulnList').innerHTML = '<div class="empty-state"><div class="empty-icon">🛡️</div><div class="empty-title">Ready to scan</div><div class="empty-sub">Paste code or upload files, then click Analyze</div></div>';
+  document.getElementById('vulnSubtitle').textContent = 'Run a scan to see results';
+  document.getElementById('vulnCount').style.display = 'none';
+  document.getElementById('diffCard').style.display = 'none';
+  document.getElementById('geminiCard').style.display = 'none';
+  document.getElementById('fixBtn').disabled = true;
+  document.getElementById('detectedLang').style.display = 'none';
+  document.getElementById('uploadedFiles').style.display = 'none';
+  document.getElementById('editorFilename').textContent = 'untitled';
+  currentScanId = null;
+  window.appFiles = [];
+  window.activeFileIndex = -1;
+}
+
+async function analyzeCode() {
+  const code = document.getElementById('codeInput').value.trim();
+  if (!code) { showToast('Please paste code or upload a file first', 'error'); return; }
+
+  const btn = document.getElementById('analyzeBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Analyzing...';
+
+  try {
+    const res = await apiFetch('/api/analyze', {
+      method: 'POST',
+      body: JSON.stringify({
+        code,
+        language: document.getElementById('langSelect').value,
+        filename: document.getElementById('editorFilename').textContent || 'code',
+        use_gemini: true
+      })
+    });
+
+    if (!res || !res.ok) {
+      const err = res ? await res.json() : {};
+      showToast('Analysis failed: ' + (err.detail || 'Unknown error'), 'error');
+      return;
+    }
+
+    const data = await res.json();
+    currentScanId = data.scan_id;
+
+    // Show Gemini analysis
+    if (data.gemini_analysis) {
+      document.getElementById('geminiCard').style.display = 'block';
+      document.getElementById('geminiText').textContent = data.gemini_analysis;
+    }
+
+    // Show vulnerabilities
+    renderVulnerabilities(data.vulnerabilities, data.total_found, data.risk_level);
+
+    document.getElementById('fixBtn').disabled = false;
+    showToast(`Found ${data.total_found} vulnerabilities [${data.risk_level}]`, data.total_found > 0 ? 'error' : 'success');
+
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '🔍 Analyze Code';
+  }
+}
+
+function renderVulnerabilities(vulns, total, riskLevel) {
+  const el = document.getElementById('vulnList');
+  const cnt = document.getElementById('vulnCount');
+  const sub = document.getElementById('vulnSubtitle');
+
+  if (!vulns || vulns.length === 0) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">✅</div><div class="empty-title">No vulnerabilities found!</div><div class="empty-sub">Your code looks secure</div></div>';
+    sub.textContent = 'No issues detected';
+    cnt.style.display = 'none';
+    return;
+  }
+
+  cnt.textContent = `${total} found`;
+  cnt.style.display = 'inline-block';
+  sub.textContent = `Risk Level: ${riskLevel}`;
+
+  el.innerHTML = vulns.map(v => `
+    <div class="vuln-card ${v.severity}">
+      <div class="vuln-head">
+        <span class="vuln-title">${v.type}</span>
+        <span class="severity-badge ${v.severity}">${v.severity}</span>
+      </div>
+      <div class="vuln-desc">${v.description}</div>
+      <div class="vuln-meta">
+        <span>📍 Line ${v.line || 'N/A'}</span>
+        <span>${v.cwe_id || ''}</span>
+        <span>${v.owasp_id || ''}</span>
+        <span>Confidence: ${Math.round((v.confidence || 0) * 100)}%</span>
+      </div>
+      ${v.code_snippet ? `<div style="background:rgba(0,0,0,0.05);border-radius:4px;padding:5px 8px;margin-top:6px;font-family:monospace;font-size:10px;color:#374151">${v.code_snippet}</div>` : ''}
+      <div class="conf-bar"><div class="conf-fill" style="width:${Math.round((v.confidence||0)*100)}%"></div></div>
+    </div>
+  `).join('');
+}
+
+async function generateFix() {
+  if (!currentScanId) { showToast('Run a scan first', 'error'); return; }
+  const code = document.getElementById('codeInput').value;
+  if (!code) return;
+
+  const btn = document.getElementById('fixBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Generating...';
+
+  try {
+    // Get vulnerabilities from current scan
+    const scanRes = await apiFetch(`/api/scans/${currentScanId}`);
+    const scan = scanRes && scanRes.ok ? await scanRes.json() : { vulnerabilities: [] };
+
+    const res = await apiFetch('/api/fix', {
+      method: 'POST',
+      body: JSON.stringify({
+        scan_id: currentScanId,
+        code,
+        language: document.getElementById('langSelect').value,
+        vulnerabilities: scan.vulnerabilities || []
+      })
+    });
+
+    if (!res || !res.ok) { showToast('Fix generation failed', 'error'); return; }
+    const data = await res.json();
+
+    // Show diff viewer
+    renderDiffViewer(code, data.fixed_code);
+    document.getElementById('diffCard').style.display = 'block';
+    showToast(`Fix generated! Confidence: ${Math.round(data.confidence * 100)}%`, 'success');
+
+    // Scroll to diff
+    document.getElementById('diffCard').scrollIntoView({ behavior: 'smooth' });
+
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '✨ Generate Fix';
+  }
+}
+
+function renderDiffViewer(original, fixed) {
+  const origLines = original.split('\n');
+  const fixedLines = fixed.split('\n');
+
+  document.getElementById('originalPane').innerHTML = origLines.map((line, i) => {
+    const cls = fixedLines[i] !== line ? 'removed' : 'neutral';
+    return `<div class="diff-line ${cls}"><span style="color:#475569;min-width:24px;text-align:right;margin-right:8px;user-select:none">${i+1}</span>${escHtml(line)}</div>`;
+  }).join('');
+
+  document.getElementById('fixedPane').innerHTML = fixedLines.map((line, i) => {
+    const cls = origLines[i] !== line ? 'added' : 'neutral';
+    return `<div class="diff-line ${cls}"><span style="color:#475569;min-width:24px;text-align:right;margin-right:8px;user-select:none">${i+1}</span>${escHtml(line)}</div>`;
+  }).join('');
+}
+
+function escHtml(str) {
+  return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function copyFixed() {
+  const lines = document.getElementById('fixedPane').querySelectorAll('.diff-line');
+  const text = Array.from(lines).map(l => l.textContent.replace(/^\d+/, '').trim()).join('\n');
+  navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard!', 'success'));
+}
+
+// ─── DOWNLOADS ─────────────────────────────────────────────────────
+
+async function downloadReport(type) {
+  if (!currentScanId) { showToast('No scan selected', 'error'); return; }
+  showToast(`Preparing ${type.toUpperCase()} download...`, 'info');
+  const endpoint = `/api/download/${currentScanId}/${type}`;
+  const res = await apiFetch(endpoint);
+  if (!res || !res.ok) { showToast('Download failed', 'error'); return; }
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `aegisflow_report_${currentScanId.slice(-6)}.${type === 'markdown' ? 'md' : type === 'code' ? 'py' : type}`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('Download started!', 'success');
+}
+
+// ─── HISTORY ───────────────────────────────────────────────────────
+
+async function loadHistory() {
+  const search = document.getElementById('historySearch').value;
+  const status = document.getElementById('historyFilter').value;
+  const tbody = document.getElementById('historyTableBody');
+  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:#94a3b8">Loading...</td></tr>';
+
+  const res = await apiFetch(`/api/scans?page=${currentPage}&limit=10&search=${search}&status=${status}`);
+  if (!res || !res.ok) return;
+  const data = await res.json();
+  historyTotalPages = data.pages || 1;
+
+  document.getElementById('historyPageInfo').textContent = `${data.total} total scans`;
+  document.getElementById('pageNum').textContent = currentPage;
+  document.getElementById('prevBtn').disabled = currentPage <= 1;
+  document.getElementById('nextBtn').disabled = currentPage >= historyTotalPages;
+
+  if (!data.scans.length) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:#94a3b8">No scans found. Run your first scan!</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = data.scans.map(s => `
+    <tr>
+      <td><div style="font-weight:500">${s.filename || 'unknown'}</div></td>
+      <td><span style="background:#f1f5f9;border-radius:6px;padding:2px 8px;font-size:11px">${(s.language || '').toUpperCase()}</span></td>
+      <td style="color:#64748b">${formatDate(s.created_at)}</td>
+      <td style="font-weight:600">${s.total_found || 0}</td>
+      <td><span class="risk-badge ${s.risk_level}">${s.risk_level || 'SAFE'}</span></td>
+      <td>${s.fix_applied ? '<span style="color:#10b981;font-size:12px">✓ Resolved</span>' : '<span style="color:#f59e0b;font-size:12px">⏳ Pending</span>'}</td>
+      <td>
+        <div class="action-btns">
+          <button class="icon-btn" onclick="viewScan('${s._id}')" title="View">👁</button>
+          <button class="icon-btn" onclick="downloadHistoryScan('${s._id}')" title="Download">⬇</button>
+          <button class="icon-btn" onclick="deleteScan('${s._id}')" title="Delete" style="color:#ef4444;border-color:#ef4444">🗑</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function changePage(dir) {
+  currentPage = Math.max(1, Math.min(historyTotalPages, currentPage + dir));
+  loadHistory();
+}
+
+async function viewScan(id) {
+  showPage('scan', document.querySelector('.nav-item:nth-child(2)'));
+  const res = await apiFetch(`/api/scans/${id}`);
+  if (!res || !res.ok) return;
+  const scan = await res.json();
+  currentScanId = id;
+  document.getElementById('codeInput').value = scan.original_code || '';
+  document.getElementById('langSelect').value = scan.language || 'python';
+  document.getElementById('editorFilename').textContent = scan.filename || 'unknown';
+  renderVulnerabilities(scan.vulnerabilities || [], scan.total_found || 0, scan.risk_level || 'SAFE');
+  if (scan.fixed_code) {
+    renderDiffViewer(scan.original_code || '', scan.fixed_code);
+    document.getElementById('diffCard').style.display = 'block';
+  }
+  if (scan.gemini_analysis) {
+    document.getElementById('geminiCard').style.display = 'block';
+    document.getElementById('geminiText').textContent = scan.gemini_analysis;
+  }
+  document.getElementById('fixBtn').disabled = false;
+}
+
+async function downloadHistoryScan(id) {
+  currentScanId = id;
+  await downloadReport('zip');
+}
+
+async function deleteScan(id) {
+  if (!confirm('Delete this scan?')) return;
+  const res = await apiFetch(`/api/scans/${id}`, { method: 'DELETE' });
+  if (res && res.ok) { showToast('Scan deleted', 'success'); loadHistory(); }
+  else showToast('Delete failed', 'error');
+}
+
+// ─── PROFILE ───────────────────────────────────────────────────────
+
+async function loadProfileActivity() {
+  const res = await apiFetch('/api/scans?page=1&limit=5');
+  if (!res || !res.ok) return;
+  const data = await res.json();
+  const el = document.getElementById('profileActivity');
+  if (!data.scans.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-sub">No recent activity</div></div>';
+    return;
+  }
+  el.innerHTML = data.scans.map(s => `
+    <div class="activity-item">
+      <div class="activity-dot" style="background:${s.risk_level === 'CRITICAL' ? '#ef4444' : s.risk_level === 'HIGH' ? '#f97316' : s.risk_level === 'SAFE' ? '#10b981' : '#f59e0b'}"></div>
+      <div style="flex:1">
+        <div style="font-size:12.5px;font-weight:500;color:#0f172a">Scan: ${s.filename || 'unknown'}</div>
+        <div style="font-size:11px;color:#94a3b8">${formatDate(s.created_at)}</div>
+      </div>
+      <span class="risk-badge ${s.risk_level}" style="font-size:10px">${s.total_found} issues</span>
+    </div>
+  `).join('');
+}
+
+function toggleEditMode() {
+  const info = document.getElementById('profileInfoSection');
+  const edit = document.getElementById('profileEditSection');
+  if (edit.style.display === 'none') {
+    edit.style.display = 'block';
+    info.style.display = 'none';
+    document.getElementById('edit-name').value = currentUser?.full_name || '';
+    document.getElementById('edit-occupation').value = currentUser?.occupation || '';
+    document.getElementById('edit-email').value = currentUser?.email || '';
+    document.getElementById('edit-org').value = currentUser?.organization || '';
+
+    document.getElementById('edit-location').value = currentUser?.location || '';
+  } else {
+    edit.style.display = 'none';
+    info.style.display = 'block';
+  }
+}
+
+async function saveProfile() {
+  const res = await apiFetch('/api/auth/profile', {
+    method: 'PUT',
+    body: JSON.stringify({
+      full_name: document.getElementById('edit-name').value,
+      occupation: document.getElementById('edit-occupation').value,
+      email: document.getElementById('edit-email').value,
+      organization: document.getElementById('edit-org').value,
+
+      location: document.getElementById('edit-location').value,
+    })
+  });
+  if (res && res.ok) {
+    const data = await res.json();
+    currentUser = { ...currentUser, ...data.user };
+    renderUserInfo();
+    toggleEditMode();
+    showToast('Profile updated!', 'success');
+  } else {
+    showToast('Update failed', 'error');
+  }
+}
+
+// ─── TOAST & NOTIFS ────────────────────────────────────────────────
+
+let notifCount = 0;
+
+function clearNotifs() {
+  notifCount = 0;
+  document.getElementById('notifDot').style.display = 'none';
+  document.getElementById('notifList').innerHTML = '<div class="empty-state" style="padding:15px"><div class="empty-sub">No recent notifications</div></div>';
+}
+
+function showToast(msg, type = 'info') {
+  const container = document.getElementById('toastContainer');
+  const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+  const icon = icons[type] || 'ℹ️';
+
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.innerHTML = `<span>${icon}</span><span>${msg}</span>`;
+  container.appendChild(toast);
+  setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity .3s'; setTimeout(() => toast.remove(), 300); }, 3500);
+
+  // Add to Notification Dropdown
+  const list = document.getElementById('notifList');
+  if (list.querySelector('.empty-state')) list.innerHTML = '';
+  const item = document.createElement('div');
+  item.className = 'notif-item';
+  item.innerHTML = `<div class="notif-icon">${icon}</div><div style="flex:1"><div style="color:var(--text-main);margin-bottom:2px">${msg}</div><div style="color:#94a3b8;font-size:10px">${formatDate(new Date().toISOString())}</div></div>`;
+  list.insertBefore(item, list.firstChild);
+
+  notifCount++;
+  document.getElementById('notifDot').style.display = 'block';
+}
+
+// ─── THEME ─────────────────────────────────────────────────────────
+
+function toggleDarkMode() {
+  document.body.classList.toggle('dark-mode');
+  const isDark = document.body.classList.contains('dark-mode');
+  localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  document.getElementById('themeBtn').textContent = isDark ? 'Light Mode' : 'Dark Mode';
+}
+
+if (localStorage.getItem('theme') === 'dark') {
+  toggleDarkMode();
+}
+
+// ─── UTILS ─────────────────────────────────────────────────────────
+
+function formatDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  const now = new Date();
+  const diff = now - d;
+  if (diff < 60000) return 'Just now';
+  if (diff < 3600000) return `${Math.floor(diff/60000)}m ago`;
+  if (diff < 86400000) return `Today, ${d.toLocaleTimeString('en', {hour:'2-digit', minute:'2-digit'})}`;
+  if (diff < 172800000) return `Yesterday, ${d.toLocaleTimeString('en', {hour:'2-digit', minute:'2-digit'})}`;
+  return d.toLocaleDateString('en', {month:'short', day:'numeric', year:'numeric'});
+}
+
+// ─── GITHUB SCANNING ───────────────────────────────────────────────
+
+let currentGithubScanId = null;
+
+async function analyzeGithubRepo() {
+  const url = document.getElementById('gh-url').value.trim();
+  if (!url) { showToast('Please enter a GitHub URL', 'error'); return; }
+
+  const btn = document.getElementById('ghAnalyzeBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Cloning and Scanning...';
+  
+  document.getElementById('ghSummaryCard').style.display = 'none';
+
+  try {
+    const res = await apiFetch('/api/analyze/github', {
+      method: 'POST',
+      body: JSON.stringify({
+        repo_url: url,
+        branch: document.getElementById('gh-branch').value.trim() || 'main',
+        github_token: document.getElementById('gh-token').value.trim() || null,
+        use_gemini: document.getElementById('gh-gemini').checked,
+        max_files: 100
+      })
+    });
+
+    if (!res || !res.ok) {
+      const err = res ? await res.json() : {};
+      showToast('Scan failed: ' + (err.detail || 'Unknown error'), 'error');
+      return;
+    }
+
+    const data = await res.json();
+    currentGithubScanId = data.repo_scan_id;
+
+    // Show Results
+    document.getElementById('ghSummaryCard').style.display = 'block';
+    document.getElementById('ghRepoName').textContent = data.repo_name;
+    document.getElementById('ghScanMeta').textContent = `Branch: ${data.branch} | Risk: ${data.overall_risk}`;
+    document.getElementById('ghFilesScanned').textContent = data.total_files_scanned;
+    document.getElementById('ghTotalVulns').textContent = data.total_vulnerabilities;
+
+    // Reset UI State from previous fixes
+    document.getElementById('ghFixBtn').style.display = 'flex';
+    document.getElementById('ghDownloadSection').style.display = 'none';
+    document.getElementById('ghTotalVulnsLabel').textContent = 'Total Vulns';
+    document.getElementById('ghTotalVulns').style.color = '#ef4444';
+    document.getElementById('ghTopFilesLabel').textContent = 'Top Vulnerable Files';
+
+    if (data.gemini_repo_analysis) {
+      document.getElementById('ghGeminiBox').style.display = 'block';
+      document.getElementById('ghGeminiText').innerHTML = data.gemini_repo_analysis.replace(/\\n/g, '<br>');
+    } else {
+      document.getElementById('ghGeminiBox').style.display = 'none';
+    }
+
+    const topFiles = data.top_vulnerable_files || [];
+    if (topFiles.length > 0) {
+      document.getElementById('ghTopFiles').innerHTML = topFiles.map(f => `
+        <div style="display:flex;justify-content:space-between;padding:8px;border-bottom:1px solid #f1f5f9;font-size:12px">
+          <span style="font-family:monospace;color:#3b82f6">${f.filename}</span>
+          <span class="risk-badge ${f.risk_level}">${f.total_found} vulns</span>
+        </div>
+      `).join('');
+    } else {
+      document.getElementById('ghTopFiles').innerHTML = '<div class="empty-state" style="padding:10px"><div class="empty-sub">No vulnerabilities found in supported files!</div></div>';
+    }
+
+    showToast('Repository scan complete!', 'success');
+
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '🚀 Scan Repository';
+  }
+}
+
+async function generateGithubFixes() {
+  if (!currentGithubScanId) return;
+  const btn = document.getElementById('ghFixBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Generating Fixes for entire repo... (This may take a minute)';
+
+  try {
+    const res = await apiFetch(`/api/analyze/github/${currentGithubScanId}/fix`, { method: 'POST' });
+    if (!res || !res.ok) { 
+      const err = res ? await res.json() : {};
+      showToast('Fix generation failed: ' + (err.detail || ''), 'error'); 
+      return; 
+    }
+    const data = await res.json();
+    showToast(`Successfully generated ${data.fixed_count} fixes!`, 'success');
+    
+    // Show download options
+    document.getElementById('ghDownloadSection').style.display = 'flex';
+    btn.style.display = 'none'; // Hide fix button once done
+    
+    // Update UI to show fixed state
+    document.getElementById('ghTotalVulnsLabel').textContent = 'Vulnerabilities Fixed';
+    const totalEl = document.getElementById('ghTotalVulns');
+    totalEl.style.color = '#10b981';
+    totalEl.textContent = data.fixed_count + ' / ' + totalEl.textContent;
+    document.getElementById('ghTopFilesLabel').textContent = 'Fixed Files';
+    
+    // Change badges to green
+    const badges = document.getElementById('ghTopFiles').querySelectorAll('.risk-badge');
+    badges.forEach(b => {
+      b.className = 'risk-badge SAFE';
+      b.textContent = 'Fixed ✅';
+    });
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '✨ Generate Fixes for Repository';
+  }
+}
+
+function downloadGithubReport(type) {
+  if (!currentGithubScanId) return;
+  window.open(`${API}/api/download/github/${currentGithubScanId}/${type}?token=${getToken()}`, '_blank');
+}
+
+// ─── START ─────────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>

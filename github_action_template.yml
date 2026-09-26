@@ -1,0 +1,26 @@
+name: AegisFlow Security Scan
+
+on:
+  push:
+    branches: [ "main", "master", "develop" ]
+  pull_request:
+    branches: [ "main", "master", "develop" ]
+
+jobs:
+  aegisflow-security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger AegisFlow Automated Scan
+        # This sends a webhook payload simulating a GitHub push to your running AegisFlow instance.
+        # Replace the URL below with your actual deployed AegisFlow backend URL (e.g., https://api.yourdomain.com/api/webhooks/github)
+        # If running locally, you must use ngrok to expose your localhost to the internet so GitHub can reach it.
+        run: |
+          curl -X POST "http://your-aegisflow-server.com/api/webhooks/github" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "ref": "${{ github.ref }}",
+            "after": "${{ github.sha }}",
+            "repository": {
+              "html_url": "${{ github.event.repository.html_url }}"
+            }
+          }'

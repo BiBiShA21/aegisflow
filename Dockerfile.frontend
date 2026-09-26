@@ -1,0 +1,11 @@
+FROM nginx:alpine
+
+# Copy static frontend files
+COPY frontend/ /usr/share/nginx/html/
+
+# Copy entrypoint script to dynamically update API URLs
+COPY frontend/docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+
+EXPOSE 80
+ENTRYPOINT ["/docker-entrypoint.sh"]
