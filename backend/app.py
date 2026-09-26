@@ -930,8 +930,34 @@ async def github_webhook(request: Request, background_tasks: BackgroundTasks):
                     
                     if commit_sha and owner and repo_name:
                         risk = scan_results.get('overall_risk', 'SAFE')
-                        if risk == "CRITICAL":
-                            agent.update_commit_status(owner, repo_name, commit_sha, "failure", "CRITICAL vulnerability detected!")
+                        if risk == "CRITICAL" or risk == "HIGH":
+                            agent.update_commit_status(owner, repo_name, commit_sha, "failure", "Vulnerabilities detected! AegisFlow is generating a fix PR...")
+                            
+                            # TRIGGER AUTONOMOUS PIPELINE FOR EACH VULNERABLE FILE
+                            from backend.agents.orchestrator import run_autonomous_pipeline
+                            
+                            # Group vulnerabilities by file
+                            vulns_by_file = {}
+                            for vuln in scan_results.get("vulnerabilities", []):
+                                fpath = vuln.get("file_path")
+                                if fpath:
+                                    if fpath not in vulns_by_file:
+                                        vulns_by_file[fpath] = {"code": vuln.get("code_snippet", ""), "vulns": []}
+                                    vulns_by_file[fpath]["vulns"].append(vuln)
+                                    
+                            for fpath, data in vulns_by_file.items():
+                                payload = {
+                                    "code": data["code"],
+                                    "language": "", # Will auto-detect
+                                    "repo_name": f"{owner}/{repo_name}",
+                                    "file_path": fpath,
+                                    "github_token": os.getenv("GITHUB_PAT"),
+                                    "scan_id": str(result.inserted_id)
+                                }
+                                # Run it asynchronously so it doesn't block
+                                print(f"🚀 [WEBHOOK] Triggering Self-Healing Pipeline for {fpath}")
+                                run_autonomous_pipeline(payload)
+                                
                         else:
                             agent.update_commit_status(owner, repo_name, commit_sha, "success", f"Scan complete. Risk: {risk}")
                             

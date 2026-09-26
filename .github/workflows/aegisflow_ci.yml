@@ -1,0 +1,43 @@
+name: AegisFlow CI/CD Bridge
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  aegisflow-security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Trigger AegisFlow Webhook
+        # This sends the GitHub event payload to your running AegisFlow FastAPI server.
+        # Ensure AEGISFLOW_WEBHOOK_URL is set in your GitHub Repository Secrets 
+        # (e.g., https://your-ngrok-url.ngrok-free.app/api/webhooks/github)
+        run: |
+          if [ -z "${{ secrets.AEGISFLOW_WEBHOOK_URL }}" ]; then
+            echo "Error: AEGISFLOW_WEBHOOK_URL secret is not set!"
+            echo "Please set it to your server's /api/webhooks/github endpoint."
+            exit 1
+          fi
+
+          echo "Triggering AegisFlow DevSecOps Pipeline..."
+          
+          # We construct a payload simulating the GitHub push/pr event
+          curl -X POST "${{ secrets.AEGISFLOW_WEBHOOK_URL }}" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "repository": {
+              "html_url": "https://github.com/${{ github.repository }}"
+            },
+            "ref": "${{ github.ref }}",
+            "after": "${{ github.sha }}",
+            "head_commit": {
+              "id": "${{ github.sha }}"
+            }
+          }'
+          
+          echo "Webhook sent successfully. AegisFlow will now scan the repository and raise fix PRs autonomously if vulnerabilities are found."
