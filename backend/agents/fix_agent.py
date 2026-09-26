@@ -43,7 +43,7 @@ def analyze_with_gemini(code: str, language: str) -> Optional[str]:
     if not GEMINI_AVAILABLE or not genai:
         return None
     try:
-        model = genai.GenerativeModel("gemini-2.0-flash")
+        model = genai.GenerativeModel("gemini-3.8-flash")
         prompt = f"""Analyze this {language} code for security vulnerabilities.
 Be concise. Return a brief 2-3 sentence security assessment.
 
@@ -64,7 +64,7 @@ Focus on: critical security risks, data exposure, injection risks."""
 def _gemini_fix(code: str, vulnerabilities: List[Dict], language: str, filename: str) -> Dict:
     """Use Gemini AI to generate fixes"""
     try:
-        model = genai.GenerativeModel("gemini-2.0-flash")
+        model = genai.GenerativeModel("gemini-3.8-flash")
 
         vuln_summary = "\n".join([
             f"- {v['type']} (line {v.get('line', '?')}): {v['description']}"
@@ -124,7 +124,7 @@ Return ONLY a valid JSON object with this exact structure (no markdown, no extra
             "changes": changes,
             "confidence": round(final_confidence, 2),
             "quality_score": 0.92,
-            "source": "gemini-2.0-flash"
+            "source": "gemini-3.8-flash"
         }
 
     except Exception as e:

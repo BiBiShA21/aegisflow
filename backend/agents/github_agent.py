@@ -145,7 +145,7 @@ class GithubAgent:
                 from backend.agents.fix_agent import analyze_with_gemini
                 from backend.agents.fix_agent import genai, GEMINI_AVAILABLE
                 if GEMINI_AVAILABLE and genai:
-                    model = genai.GenerativeModel("gemini-2.0-flash")
+                    model = genai.GenerativeModel("gemini-3.8-flash")
                     repo_context = f"Repository: {owner}/{repo}\nOverall Risk: {overall_risk}\nTotal Vulns: {len(all_vulns)}\n"
                     repo_context += "Top Vulnerable Files:\n"
                     for tf in top_vulnerable:
