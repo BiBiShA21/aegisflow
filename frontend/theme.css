@@ -1,0 +1,157 @@
+/* ==============================================================
+   PREMIUM "DARK X" GLASSMORPHIC THEME (Unified)
+   ============================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700&display=swap');
+
+:root {
+  --bg: #09090b;
+  --surface: rgba(24, 24, 27, 0.4);
+  --surface-border: rgba(255, 255, 255, 0.08);
+  --surface-hover: rgba(255, 255, 255, 0.05);
+  --text-main: #ffffff;
+  --text-muted: #a1a1aa;
+  --text-secondary: #e4e4e7;
+  
+  --accent-primary: #8b5cf6;
+  --accent-secondary: #ec4899;
+  --accent-tertiary: #3b82f6;
+  
+  --glow-op: 0.15;
+  
+  --success: #10b981;
+  --error: #ef4444;
+  --pending: #f59e0b;
+}
+
+[data-theme="light"] {
+  --bg: #f8fafc;
+  --surface: rgba(255, 255, 255, 0.8);
+  --surface-border: rgba(0, 0, 0, 0.05);
+  --surface-hover: rgba(0, 0, 0, 0.02);
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --text-secondary: #334155;
+  --glow-op: 0.1;
+}
+
+/* Base Body Override */
+body {
+  font-family: 'Inter', sans-serif !important;
+  background-color: var(--bg) !important;
+  color: var(--text-main) !important;
+  transition: background-color 0.4s ease, color 0.4s ease;
+  min-height: 100vh;
+}
+
+/* Ambient Glows */
+.ambient-glow {
+  position: fixed; border-radius: 50%; filter: blur(120px); z-index: -1;
+  opacity: var(--glow-op); transition: opacity 0.4s ease; pointer-events: none;
+}
+.glow-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: var(--accent-tertiary); }
+.glow-2 { bottom: -20%; right: -10%; width: 60vw; height: 60vw; background: var(--accent-primary); }
+.glow-3 { top: 30%; left: 40%; width: 40vw; height: 40vw; background: var(--accent-secondary); }
+
+/* Unified Glassmorphic Classes */
+.sidebar, .topbar, .card, .stat-card, .toast, .notif-dropdown, .auth-card, .table-container, .code-editor-head, header, .diff-pane, .diff-pane-head {
+  background: var(--surface) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid var(--surface-border) !important;
+  color: var(--text-main) !important;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.05) !important;
+}
+
+.topbar-left h1, .brand-name, .card-title, .user-name, .stat-value, .upload-title, .vuln-title, .info-value, .notif-head, .hero-title, .auth-card h1, .title-main, .table-header h3 {
+  color: var(--text-main) !important;
+  font-family: 'Outfit', sans-serif;
+}
+.topbar-left p, .nav-item, .card-sub, .upload-sub, .vuln-desc, .text-muted, .empty-title, .empty-sub, .stat-label, .hero-desc, .auth-card p, .subtitle, th {
+  color: var(--text-muted) !important;
+}
+
+.nav-item:hover, .user-card:hover, .settings-item:hover, .history-table tr:hover td, tbody tr:hover td {
+  background: var(--surface-hover) !important;
+}
+
+/* Primary Buttons Override */
+.btn-primary, .btn-teal, .btn-coral, .btn-green, .btn-gradient, .upload-btns .btn, .dl-btn, .quick-btn {
+  border-radius: 9999px !important;
+  border: none !important;
+  background: linear-gradient(135deg, #ec4899, #8b5cf6) !important;
+  color: white !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 4px 15px rgba(236, 72, 153, 0.25) !important;
+  font-family: 'Inter', sans-serif !important;
+}
+.btn-primary:hover, .btn-teal:hover, .btn-coral:hover, .btn-green:hover, .btn-gradient:hover, .upload-btns .btn:hover, .dl-btn:hover, .quick-btn:hover {
+  background: linear-gradient(135deg, #ec4899, #8b5cf6) !important;
+  box-shadow: 0 6px 20px rgba(236, 72, 153, 0.4) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Transparent Outline Buttons */
+.btn-outline, .btn-pill, .icon-btn, .page-btn, .profile-edit-btn {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid var(--surface-border) !important;
+  color: var(--text-main) !important;
+  border-radius: 9999px !important;
+}
+.btn-outline:hover, .btn-pill:hover, .icon-btn:hover, .page-btn:hover, .profile-edit-btn:hover {
+  background: var(--surface-hover) !important;
+}
+
+/* Text Inputs / Forms */
+.search-box, .edit-input, select, .form-input {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid var(--surface-border) !important;
+  color: var(--text-main) !important;
+  backdrop-filter: blur(10px) !important;
+  border-radius: 12px !important;
+}
+.search-box input, .form-input { color: var(--text-main) !important; }
+
+/* Tables */
+.history-table th, table th { background: rgba(0,0,0,0.05) !important; border-bottom: 1px solid var(--surface-border) !important; color: var(--text-muted) !important; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; }
+.history-table td, table td { border-bottom: 1px solid var(--surface-border) !important; color: var(--text-secondary) !important; }
+.history-table { border-collapse: collapse; width: 100%; }
+
+/* Specifically overriding the old blue sidebar and borders */
+.sidebar, .topbar { border: none !important; border-right: 1px solid var(--surface-border) !important; }
+.topbar { border-bottom: 1px solid var(--surface-border) !important; }
+.left { background: transparent !important; }
+.left::before, .left::after { display: none !important; }
+
+/* Remove old dark mode classes to avoid conflicts */
+body.dark-mode { background-color: var(--bg) !important; color: var(--text-main) !important; }
+
+/* Layout fixes */
+.upload-zone { background: rgba(255, 255, 255, 0.02) !important; border-color: var(--surface-border) !important; }
+.ai-card { background: rgba(139, 92, 246, 0.1) !important; border: 1px solid rgba(139, 92, 246, 0.2) !important; }
+.profile-header { background: linear-gradient(135deg, #ec4899, #8b5cf6) !important; border: none !important; }
+/* Apply Logo Gradient Everywhere */
+.brand-icon, .stat-icon, .feature-icon, .info-icon, .notif-icon, .ai-badge {
+  background: linear-gradient(135deg, #ec4899, #8b5cf6) !important;
+  color: white !important;
+  border: none !important;
+}
+
+.icon-btn:hover, .page-btn:hover, .upload-zone:hover {
+  border-color: #ec4899 !important;
+  color: #ec4899 !important;
+}
+
+.stat-change.up { color: #ec4899 !important; }
+.conf-fill, .strength-fill { background: linear-gradient(90deg, #ec4899, #8b5cf6) !important; }
+.nav-item.active { 
+  background: linear-gradient(135deg, rgba(236,72,153,0.1), rgba(139,92,246,0.1)) !important;
+  color: #ec4899 !important; 
+}
+.sidebar-user .user-avatar, .topbar-avatar, .profile-avatar {
+  background: linear-gradient(135deg, #ec4899, #8b5cf6) !important;
+}
+
+/* Profile and Settings Fixes */
+.profile-avatar, .sidebar-user .user-avatar, .topbar-avatar { border: 2px solid #000000 !important; }
+.settings-item-left { color: var(--text-main) !important; }
+.profile-role, .profile-stat-label { color: rgba(255, 255, 255, 0.9) !important; }

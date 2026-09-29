@@ -201,3 +201,35 @@ Be concise. Provide an executive summary, main attack surfaces, and priority fix
         except Exception as e:
             print(f"[ERROR] Exception while updating commit status: {e}")
             return None
+
+    def create_webhook(self, owner: str, repo: str, webhook_url: str):
+        """Automatically create a webhook for the repository."""
+        if not self.headers.get("Authorization"):
+            raise ValueError("GitHub token is required to create a webhook.")
+            
+        url = f"https://api.github.com/repos/{owner}/{repo}/hooks"
+        payload = {
+            "name": "web",
+            "active": True,
+            "events": ["push", "pull_request"],
+            "config": {
+                "url": webhook_url,
+                "content_type": "json",
+                "insecure_ssl": "0"
+            }
+        }
+        try:
+            response = self.client.post(url, json=payload)
+            if response.status_code == 201:
+                return {"success": True, "message": "Webhook successfully created!"}
+            elif response.status_code == 422:
+                # 422 usually means the hook already exists
+                return {"success": True, "message": "Webhook already exists for this repository."}
+            elif response.status_code == 404:
+                raise ValueError("Repository not found, or you don't have Admin permissions. Note: GitHub OAuth authenticates YOUR account, so you must have admin rights to the repo.")
+            else:
+                raise ValueError(f"Failed to create webhook: {response.text}")
+        except ValueError as ve:
+            raise ve
+        except Exception as e:
+            raise ValueError(f"Exception while creating webhook: {e}")

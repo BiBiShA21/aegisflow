@@ -104,7 +104,7 @@ def login_user(username: str, password: str, remember_me: bool = False) -> Dict:
     _log_audit(str(user["_id"]), "login", "success")
 
     token = create_access_token(
-        {"user_id": str(user["_id"]), "username": user["username"], "occupation": user["occupation"]},
+        {"user_id": str(user["_id"]), "username": user["username"], "occupation": user.get("occupation", "Developer")},
         remember_me=remember_me
     )
 

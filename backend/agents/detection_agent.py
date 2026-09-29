@@ -3,6 +3,10 @@ AegisFlow - Detection Agent
 Phase 3: 15-type vulnerability detection across 10 languages
 """
 import re
+import os
+import uuid
+import json
+import docker
 from typing import List, Dict, Any
 
 VULNERABILITY_RULES = {
@@ -253,6 +257,104 @@ def detect_language(filename: str, code: str = "") -> str:
     return "python"
 
 
+def _run_external_scanners(code: str, filename: str) -> List[Dict[str, Any]]:
+    """Runs Trivy and Trufflehog via Docker on the provided code."""
+    findings = []
+    
+    # Fast exit if filename is not provided or it's a huge minified file
+    if len(code) > 500000:
+        return findings
+        
+    try:
+        client = docker.from_env()
+    except Exception as e:
+        print(f"[DETECTION WARNING] Docker daemon not reachable for Trivy/Trufflehog: {e}")
+        return findings
+        
+    temp_filename = f"scan_{uuid.uuid4().hex[:8]}_{os.path.basename(filename) if filename else 'temp.py'}"
+    host_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "temp_sandbox"))
+    os.makedirs(host_dir, exist_ok=True)
+    temp_path = os.path.join(host_dir, temp_filename)
+    
+    try:
+        with open(temp_path, "w", encoding="utf-8") as f:
+            f.write(code)
+            
+        # 1. Run Trivy
+        try:
+            trivy_output = client.containers.run(
+                image="aquasec/trivy:latest",
+                command=f"fs --format json --scanners vuln,secret,misconfig /app/{temp_filename}",
+                volumes={host_dir: {'bind': '/app', 'mode': 'ro'}},
+                remove=True
+            ).decode("utf-8")
+            
+            try:
+                trivy_data = json.loads(trivy_output)
+                results = trivy_data.get("Results", [])
+                for result in results:
+                    target_vulns = result.get("Vulnerabilities", []) + result.get("Secrets", []) + result.get("Misconfigurations", [])
+                    for tv in target_vulns:
+                        # Map Trivy severity
+                        sev_map = {"CRITICAL": "CRITICAL", "HIGH": "HIGH", "MEDIUM": "MEDIUM", "LOW": "LOW", "UNKNOWN": "INFO"}
+                        findings.append({
+                            "type": f"Trivy: {tv.get('VulnerabilityID', tv.get('Title', tv.get('Type', 'Issue')))}",
+                            "severity": sev_map.get(tv.get("Severity", "MEDIUM"), "MEDIUM"),
+                            "line": tv.get("StartLine", 1),
+                            "description": tv.get("Description", tv.get("Message", "Detected by Trivy")),
+                            "code_snippet": f"Found in {filename}",
+                            "cwe_id": tv.get("CweIDs", [""])[0] if tv.get("CweIDs") else "",
+                            "owasp_id": "",
+                            "confidence": 0.95,
+                            "confidence_level": "VERY_HIGH"
+                        })
+            except Exception as e:
+                print(f"[TRIVY ERROR] JSON parse failed: {e}")
+        except Exception as e:
+            print(f"[TRIVY ERROR] Docker run failed: {e}")
+
+        # 2. Run Trufflehog
+        try:
+            trufflehog_output = ""
+            try:
+                # Trufflehog returns non-zero if secrets are found
+                trufflehog_output = client.containers.run(
+                    image="trufflesecurity/trufflehog:latest",
+                    command=f"filesystem --json /app/{temp_filename}",
+                    volumes={host_dir: {'bind': '/app', 'mode': 'ro'}},
+                    remove=True
+                ).decode("utf-8")
+            except docker.errors.ContainerError as ce:
+                trufflehog_output = ce.stdout.decode("utf-8") if ce.stdout else ""
+                
+            for line in trufflehog_output.split("\n"):
+                if not line.strip(): continue
+                try:
+                    th_data = json.loads(line)
+                    if "DetectorName" in th_data:
+                        findings.append({
+                            "type": f"Hardcoded Credentials (Trufflehog: {th_data.get('DetectorName')})",
+                            "severity": "CRITICAL",
+                            "line": 1,
+                            "description": f"Leaked secret of type {th_data.get('DetectorName')}",
+                            "code_snippet": th_data.get("Raw", "")[:77] + "...",
+                            "cwe_id": "CWE-798",
+                            "owasp_id": "A07:2021",
+                            "confidence": 0.95,
+                            "confidence_level": "VERY_HIGH"
+                        })
+                except:
+                    pass
+        except Exception as e:
+            print(f"[TRUFFLEHOG ERROR] Docker run failed: {e}")
+
+    finally:
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
+            
+    return findings
+
+
 def detect_vulnerabilities(code: str, language: str = "python", filename: str = "") -> List[Dict[str, Any]]:
     """Run all 15 detection rules against the code with optimizations."""
     findings = []
@@ -285,6 +387,10 @@ def detect_vulnerabilities(code: str, language: str = "python", filename: str = 
                             "confidence": confidence_score,
                             "confidence_level": _confidence_label(confidence_score),
                         })
+
+    # Run External Scanners (Trivy & Trufflehog)
+    external_findings = _run_external_scanners(code, filename)
+    findings.extend(external_findings)
 
     # Sort: CRITICAL first
     severity_order = {"CRITICAL": 0, "HIGH": 1, "MEDIUM": 2, "LOW": 3, "INFO": 4}

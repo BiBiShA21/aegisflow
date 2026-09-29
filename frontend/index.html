@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
 <title>AegisFlow — Dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
@@ -22,7 +23,7 @@
       background: #94a3b8;
     }
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f0f4f8;display:flex;min-height:100vh;color:#0f172a}
+body{font-family: 'Inter', sans-serif;}
 
 /* SIDEBAR */
 .sidebar{width:240px;background:white;border-right:1px solid #e5e7eb;display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;box-shadow:2px 0 8px rgba(0,0,0,0.04)}
@@ -196,10 +197,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 /* QUICK ACTIONS */
 .quick-actions{display:flex;gap:10px;flex-wrap:wrap}
 .quick-btn{flex:1;min-width:120px;padding:12px 16px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all 0.2s;text-align:center}
-.quick-btn.new-scan{background:linear-gradient(135deg,#06b6d4,#0891b2);color:white}
-.quick-btn.upload{background:linear-gradient(135deg,#f97316,#ea580c);color:white}
-.quick-btn.reports{background:linear-gradient(135deg,#10b981,#059669);color:white}
-.quick-btn.project{background:linear-gradient(135deg,#8b5cf6,#7c3aed);color:white}
+.quick-btn.new-scan, .quick-btn.upload, .quick-btn.reports, .quick-btn.project {background:linear-gradient(135deg,#ec4899,#8b5cf6) !important;color:white}
 .quick-btn:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,0.15)}
 
 /* PAGES */
@@ -219,7 +217,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 @keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
 
 /* PROFILE */
-.profile-header{background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 50%,#0e7490 100%);border-radius:12px;padding:32px;display:flex;align-items:center;gap:24px;margin-bottom:20px;color:white;position:relative;overflow:hidden}
+.profile-header{background:linear-gradient(135deg,#ec4899,#8b5cf6);border-radius:12px;padding:32px;display:flex;align-items:center;gap:24px;margin-bottom:20px;color:white;position:relative;overflow:hidden}
 .profile-header::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(6,182,212,0.2) 0%,transparent 70%);border-radius:50%}
 .profile-avatar{width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:700;color:white;border:3px solid rgba(255,255,255,0.2);flex-shrink:0;position:relative;z-index:1}
 .profile-info{position:relative;z-index:1}
@@ -286,42 +284,144 @@ body.dark-mode .icon-btn, body.dark-mode .page-btn { background: #334155; border
 .notif-item { padding: 12px 16px; border-bottom: 1px solid #f8fafc; font-size: 12px; display: flex; gap: 10px; align-items: start; }
 .notif-item:last-child { border-bottom: none; }
 .notif-icon { width: 24px; height: 24px; border-radius: 5px; background: #f0fdf4; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 12px; }
+
+/* ==============================================================
+   PREMIUM GLASSMORPHIC THEME OVERRIDES
+   ============================================================== */
+:root {
+  --bg: #09090b;
+  --surface: rgba(24, 24, 27, 0.4);
+  --surface-border: rgba(255, 255, 255, 0.08);
+  --surface-hover: rgba(255, 255, 255, 0.05);
+  --text-main: #ffffff;
+  --text-muted: #a1a1aa;
+  --text-secondary: #e4e4e7;
+  --accent-primary: #8b5cf6;
+  --accent-secondary: #ec4899;
+  --accent-tertiary: #3b82f6;
+  --glow-op: 0.15;
+}
+
+[data-theme="light"] {
+  --bg: #f8fafc;
+  --surface: rgba(255, 255, 255, 0.8);
+  --surface-border: rgba(0, 0, 0, 0.05);
+  --surface-hover: rgba(0, 0, 0, 0.02);
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --text-secondary: #334155;
+  --glow-op: 0.1;
+}
+
+body{font-family: 'Inter', sans-serif;}
+
+/* Ambient Glows */
+.ambient-glow {
+  position: fixed; border-radius: 50%; filter: blur(120px); z-index: -1;
+  opacity: var(--glow-op); transition: opacity 0.4s ease; pointer-events: none;
+}
+.glow-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: var(--accent-tertiary); }
+.glow-2 { bottom: -20%; right: -10%; width: 60vw; height: 60vw; background: var(--accent-primary); }
+.glow-3 { top: 30%; left: 40%; width: 40vw; height: 40vw; background: var(--accent-secondary); }
+
+/* Overrides for index.html elements */
+.sidebar, .topbar, .card, .stat-card, .toast, .notif-dropdown, .auth-card, .table-container, .code-editor-head {
+  background: var(--surface) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-color: var(--surface-border) !important;
+  color: var(--text-main) !important;
+}
+
+.card-head, .topbar, .sidebar-brand, .sidebar-user, .auth-card { border-color: var(--surface-border) !important; }
+.topbar-left h1, .brand-name, .card-title, .user-name, .stat-value, .upload-title, .vuln-title, .info-value, .notif-head, .hero-title, .auth-card h1 { color: var(--text-main) !important; }
+.topbar-left p, .nav-item, .card-sub, .upload-sub, .vuln-desc, .text-muted, .empty-title, .empty-sub, .stat-label, .hero-desc, .auth-card p { color: var(--text-muted) !important; }
+
+.nav-item:hover, .user-card:hover, .settings-item:hover, .history-table tr:hover td { background: var(--surface-hover) !important; }
+
+/* Remove old dark mode classes to avoid conflicts */
+body.dark-mode { background-color: var(--bg) !important; color: var(--text-main) !important; }
+
+/* Buttons */
+.btn-primary, .btn-teal, .btn-coral, .btn-green {
+  border-radius: 9999px !important;
+  border: none !important;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)) !important;
+  color: white !important;
+}
+.btn-primary:hover, .btn-teal:hover, .btn-coral:hover, .btn-green:hover {
+  background: linear-gradient(135deg, #7c3aed, #db2777) !important;
+  box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4) !important;
+}
+
+/* Text Inputs */
+.search-box, .edit-input, select, .form-input {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border-color: var(--surface-border) !important;
+  color: var(--text-main) !important;
+  backdrop-filter: blur(10px);
+}
+.search-box input, .form-input { color: var(--text-main) !important; }
+
+/* History Table overrides */
+.history-table th { background: rgba(0,0,0,0.05) !important; border-color: var(--surface-border) !important; color: var(--text-muted) !important; }
+.history-table td { border-color: var(--surface-border) !important; color: var(--text-secondary) !important; }
+
+/* Left Auth Section */
+.left { flex: 0 0 45%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px; position: relative; z-index: 10; }
+.left::before, 
+
+
+
+.toggle-switch { position: relative; display: inline-block; width: 36px; height: 20px; flex-shrink: 0; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--surface-border); transition: .3s; border-radius: 34px; border: 1px solid var(--text-muted); }
+.toggle-slider:before { position: absolute; content: ''; height: 14px; width: 14px; left: 2px; bottom: 2px; background-color: var(--text-muted); transition: .3s; border-radius: 50%; }
+.toggle-switch input:checked + .toggle-slider { background: linear-gradient(135deg, #ec4899, #8b5cf6); border-color: transparent; }
+.toggle-switch input:checked + .toggle-slider:before { transform: translateX(16px); background-color: white; }
 </style>
+  <link rel="stylesheet" href="theme.css?v=4">
 </head>
 <body>
+
+  <!-- Ambient Background -->
+  <div class="ambient-glow glow-1"></div>
+  <div class="ambient-glow glow-2"></div>
+  <div class="ambient-glow glow-3"></div>
+
 
 <!-- TOAST CONTAINER -->
 <div class="toast-container" id="toastContainer"></div>
 
 <!-- SIDEBAR -->
 <aside class="sidebar">
-  <div class="sidebar-brand">
-    <div class="brand-icon">🛡️</div>
-    <span class="brand-name">AegisFlow</span>
+  <div class="sidebar-brand" style="justify-content: center; padding: 20px;">
+    <img src="logo.png" alt="AegisFlow Logo" style="height: 120px; display: block; margin: 0 auto;">
   </div>
   <nav class="nav">
     <div class="nav-section">Main</div>
     <a class="nav-item active" onclick="showPage('dashboard',this)">
-      <span class="icon">📊</span> Dashboard
+      <span class="icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg></span> Dashboard
     </a>
     <a class="nav-item" onclick="showPage('scan',this)">
-      <span class="icon">🔍</span> New Scan
+      <span class="icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></span> Scan
     </a>
-    <a class="nav-item" onclick="showPage('github',this)">
-      <span class="icon">🐙</span> Scan Repository
-    </a>
+
     <a class="nav-item" onclick="showPage('history',this)">
-      <span class="icon">🕐</span> Scan History
+      <span class="icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span> Scan History
+    </a>
+    <a class="nav-item" href="webhooks.html">
+      <span class="icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/></svg></span> CI/CD Logs
     </a>
     <a class="nav-item" onclick="showPage('analytics',this)">
-      <span class="icon">📈</span> Analytics
+      <span class="icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="18" x2="18" y1="20" y2="10"/><line x1="12" x2="12" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="14"/></svg></span> Analytics
     </a>
     <div class="nav-section">Account</div>
     <a class="nav-item" onclick="showPage('profile',this)">
-      <span class="icon">👤</span> Profile
+      <span class="icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span> Profile
     </a>
     <a class="nav-item" onclick="showPage('settings',this)">
-      <span class="icon">⚙️</span> Settings
+      <span class="icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></span> Settings
     </a>
   </nav>
   <div class="sidebar-user">
@@ -353,8 +453,13 @@ body.dark-mode .icon-btn, body.dark-mode .page-btn { background: #334155; border
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
         <input type="text" placeholder="Search anything...">
       </div>
+      
+      <button class="icon-btn" id="themeToggle" onclick="toggleTheme()" style="border:none;background:var(--surface);backdrop-filter:blur(10px);width:auto;padding:0 12px;display:flex;align-items:center;gap:6px;font-size:12px;border-radius:9999px;color:var(--text-main)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg> Light Mode
+      </button>
+
       <div class="notif-btn" onclick="document.getElementById('notifDropdown').style.display = document.getElementById('notifDropdown').style.display === 'none' ? 'block' : 'none'">
-        🔔
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg>
         <div class="notif-dot" id="notifDot" style="display:none"></div>
       </div>
       <div class="notif-dropdown" id="notifDropdown" style="display:none">
@@ -380,25 +485,25 @@ body.dark-mode .icon-btn, body.dark-mode .page-btn { background: #334155; border
           <div class="stat-label">Total Scans</div>
           <div class="stat-value" id="totalScans">—</div>
           <div class="stat-change up" id="scansChange">↑ Loading...</div>
-          <div class="stat-icon teal">📂</div>
+          <div class="stat-icon teal"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 7 4"/><polyline points="20 7 20 4 17 4"/><polyline points="20 17 20 20 17 20"/><polyline points="4 17 4 20 7 20"/><line x1="2" x2="22" y1="12" y2="12"/></svg></div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Critical Issues</div>
           <div class="stat-value" id="criticalIssues">—</div>
           <div class="stat-change down" id="criticalChange">⚠ Needs attention</div>
-          <div class="stat-icon red">🚨</div>
+          <div class="stat-icon red"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Fix Success Rate</div>
           <div class="stat-value" id="fixRate">—%</div>
           <div class="stat-change up" id="fixChange">↑ AI-powered</div>
-          <div class="stat-icon green">✅</div>
+          <div class="stat-icon green"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Avg. Analysis Time</div>
           <div class="stat-value" id="avgTime">—s</div>
           <div class="stat-change up">⚡ Very Fast</div>
-          <div class="stat-icon amber">⚡</div>
+          <div class="stat-icon amber"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
         </div>
       </div>
 
@@ -448,10 +553,10 @@ body.dark-mode .icon-btn, body.dark-mode .page-btn { background: #334155; border
           <div class="card-head"><div class="card-title">Quick Actions</div></div>
           <div class="card-body">
             <div class="quick-actions">
-              <button class="quick-btn new-scan" onclick="showPage('scan',null)">🔍 New Scan</button>
-              <button class="quick-btn upload" onclick="showPage('scan',null)">📁 Upload Code</button>
-              <button class="quick-btn reports" onclick="showPage('history',null)">📊 View Reports</button>
-              <button class="quick-btn project" onclick="showPage('analytics',null)">📈 Analytics</button>
+              <button class="quick-btn new-scan" style="display:flex;align-items:center;justify-content:center;gap:6px;" onclick="showPage('scan',null)"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg> Scan</button>
+              <button class="quick-btn upload" style="display:flex;align-items:center;justify-content:center;gap:6px;" onclick="showPage('scan',null)"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg> Upload Code</button>
+              <button class="quick-btn reports" style="display:flex;align-items:center;justify-content:center;gap:6px;" onclick="showPage('history',null)"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg> View Reports</button>
+              <button class="quick-btn project" style="display:flex;align-items:center;justify-content:center;gap:6px;" onclick="showPage('analytics',null)"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="18" x2="18" y1="20" y2="10"/><line x1="12" x2="12" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="14"/></svg> Analytics</button>
             </div>
           </div>
         </div>
@@ -463,6 +568,35 @@ body.dark-mode .icon-btn, body.dark-mode .page-btn { background: #334155; border
       <div class="grid-2">
         <!-- Upload + Code Editor -->
         <div style="display:flex;flex-direction:column;gap:16px">
+          <!-- GitHub Repository Scan -->
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">🐙 Scan GitHub Repository</div>
+                <div class="card-sub">Analyze and fix repository issues</div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="form-group" style="margin-bottom:12px">
+                <label style="font-size:12px;font-weight:500;color:#374151;display:block;margin-bottom:4px">Repository URL *</label>
+                <input class="edit-input" id="gh-url" type="text" placeholder="https://github.com/owner/repo">
+              </div>
+              <div class="form-group" style="margin-bottom:12px">
+                <label style="font-size:12px;font-weight:500;color:#374151;display:block;margin-bottom:4px">Branch (optional)</label>
+                <input class="edit-input" id="gh-branch" type="text" placeholder="main">
+              </div>
+              <div class="form-group" style="margin-bottom:12px">
+                <label style="font-size:12px;font-weight:500;color:#374151;display:block;margin-bottom:4px">GitHub Token (optional, for private repos)</label>
+                <input class="edit-input" id="gh-token" type="password" autocomplete="new-password" placeholder="ghp_xxxxxxxxxxxx">
+              </div>
+              <div class="form-group" style="margin-bottom:16px">
+                <label style="font-size:12px;font-weight:500;color:#374151;display:flex;align-items:center;gap:6px">
+                  <input type="checkbox" id="gh-gemini" checked> Enable AI Executive Summary
+                </label>
+              </div>
+              <button class="btn btn-primary" id="ghAnalyzeBtn" onclick="analyzeGithubRepo()" style="width:100%;justify-content:center;padding:12px">🚀 Scan Repository</button>
+            </div>
+          </div>
           <div class="card">
             <div class="card-head"><div class="card-title">📁 Upload Code</div></div>
             <div class="card-body">
@@ -523,6 +657,38 @@ body.dark-mode .icon-btn, body.dark-mode .page-btn { background: #334155; border
 
         <!-- Results Panel -->
         <div style="display:flex;flex-direction:column;gap:16px;height:100%">
+          <!-- GitHub Results -->
+          <div class="card" id="ghSummaryCard" style="display:none">
+            <div class="card-head">
+              <div>
+                <div class="card-title" id="ghRepoName">Repository</div>
+                <div class="card-sub" id="ghScanMeta">Scan Summary</div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="stats-grid" style="grid-template-columns:1fr 1fr;margin-bottom:16px">
+                <div class="stat-card" style="padding:12px"><div class="stat-label">Files Scanned</div><div class="stat-value" id="ghFilesScanned" style="font-size:20px">—</div></div>
+                <div class="stat-card" style="padding:12px"><div id="ghTotalVulnsLabel" class="stat-label">Total Vulns</div><div class="stat-value" id="ghTotalVulns" style="font-size:20px;color:#ef4444">—</div></div>
+              </div>
+              <div id="ghGeminiBox" class="ai-card" style="display:none">
+                <div class="ai-header">🤖 AI Executive Summary <span class="ai-badge">AI</span></div>
+                <div class="ai-text" id="ghGeminiText"></div>
+              </div>
+              <div id="ghTopFilesLabel" style="font-size:13px;font-weight:600;margin-bottom:8px">Top Vulnerable Files</div>
+              <div id="ghTopFiles"></div>
+              
+              <div style="margin-top:16px;padding-top:16px;border-top:1px solid #f1f5f9;">
+                <button class="btn btn-primary" id="ghFixBtn" onclick="generateGithubFixes()" style="width:100%;justify-content:center;padding:10px;margin-bottom:16px">✨ Generate Fixes for Repository</button>
+                
+                <div id="ghDownloadSection" class="download-section" style="display:none">
+                  <div style="width:100%;font-size:12px;font-weight:600;color:#64748b;margin-bottom:8px">Download Reports & Fixed Code:</div>
+                  <button class="dl-btn pdf" onclick="downloadGithubReport('pdf')">📄 PDF Report</button>
+                  <button class="dl-btn md" onclick="downloadGithubReport('markdown')">📝 Markdown</button>
+                  <button class="dl-btn zip" onclick="downloadGithubReport('zip')">📦 ZIP All (Includes Code)</button>
+                </div>
+              </div>
+            </div>
+          </div>
           <!-- Gemini AI Card -->
           <div class="card" id="geminiCard" style="display:none">
             <div class="card-head"><div class="card-title">🤖 Gemini AI Analysis</div><span class="ai-badge">AI</span></div>
@@ -581,77 +747,7 @@ body.dark-mode .icon-btn, body.dark-mode .page-btn { background: #334155; border
     </div>
 
 
-    <!-- ═══════════════ GITHUB SCAN PAGE ═══════════════ -->
-    <div class="page" id="page-github">
-      <div class="grid-2">
-        <!-- Input Form -->
-        <div style="display:flex;flex-direction:column;gap:16px">
-          <div class="card">
-            <div class="card-head">
-              <div>
-                <div class="card-title">🐙 GitHub Repository Scan</div>
-                <div class="card-sub">Analyze and fix repository issues</div>
-              </div>
-            </div>
-            <div class="card-body">
-              <div class="form-group" style="margin-bottom:12px">
-                <label style="font-size:12px;font-weight:500;color:#374151;display:block;margin-bottom:4px">Repository URL *</label>
-                <input class="edit-input" id="gh-url" type="text" placeholder="https://github.com/owner/repo">
-              </div>
-              <div class="form-group" style="margin-bottom:12px">
-                <label style="font-size:12px;font-weight:500;color:#374151;display:block;margin-bottom:4px">Branch (optional)</label>
-                <input class="edit-input" id="gh-branch" type="text" placeholder="main">
-              </div>
-              <div class="form-group" style="margin-bottom:12px">
-                <label style="font-size:12px;font-weight:500;color:#374151;display:block;margin-bottom:4px">GitHub Token (optional, for private repos)</label>
-                <input class="edit-input" id="gh-token" type="password" autocomplete="new-password" placeholder="ghp_xxxxxxxxxxxx">
-              </div>
-              <div class="form-group" style="margin-bottom:16px">
-                <label style="font-size:12px;font-weight:500;color:#374151;display:flex;align-items:center;gap:6px">
-                  <input type="checkbox" id="gh-gemini" checked> Enable AI Executive Summary
-                </label>
-              </div>
-              <button class="btn btn-teal" id="ghAnalyzeBtn" onclick="analyzeGithubRepo()" style="width:100%;justify-content:center;padding:12px">🚀 Scan Repository</button>
-            </div>
-          </div>
-        </div>
 
-        <!-- Results -->
-        <div style="display:flex;flex-direction:column;gap:16px">
-          <div class="card" id="ghSummaryCard" style="display:none">
-            <div class="card-head">
-              <div>
-                <div class="card-title" id="ghRepoName">Repository</div>
-                <div class="card-sub" id="ghScanMeta">Scan Summary</div>
-              </div>
-            </div>
-            <div class="card-body">
-              <div class="stats-grid" style="grid-template-columns:1fr 1fr;margin-bottom:16px">
-                <div class="stat-card" style="padding:12px"><div class="stat-label">Files Scanned</div><div class="stat-value" id="ghFilesScanned" style="font-size:20px">—</div></div>
-                <div class="stat-card" style="padding:12px"><div id="ghTotalVulnsLabel" class="stat-label">Total Vulns</div><div class="stat-value" id="ghTotalVulns" style="font-size:20px;color:#ef4444">—</div></div>
-              </div>
-              <div id="ghGeminiBox" class="ai-card" style="display:none">
-                <div class="ai-header">🤖 AI Executive Summary <span class="ai-badge">AI</span></div>
-                <div class="ai-text" id="ghGeminiText"></div>
-              </div>
-              <div id="ghTopFilesLabel" style="font-size:13px;font-weight:600;margin-bottom:8px">Top Vulnerable Files</div>
-              <div id="ghTopFiles"></div>
-              
-              <div style="margin-top:16px;padding-top:16px;border-top:1px solid #f1f5f9;">
-                <button class="btn btn-green" id="ghFixBtn" onclick="generateGithubFixes()" style="width:100%;justify-content:center;padding:10px;margin-bottom:16px">✨ Generate Fixes for Repository</button>
-                
-                <div id="ghDownloadSection" class="download-section" style="display:none">
-                  <div style="width:100%;font-size:12px;font-weight:600;color:#64748b;margin-bottom:8px">Download Reports & Fixed Code:</div>
-                  <button class="dl-btn pdf" onclick="downloadGithubReport('pdf')">📄 PDF Report</button>
-                  <button class="dl-btn md" onclick="downloadGithubReport('markdown')">📝 Markdown</button>
-                  <button class="dl-btn zip" onclick="downloadGithubReport('zip')">📦 ZIP All (Includes Code)</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
 
     <!-- ═══════════════ HISTORY PAGE ═══════════════ -->
     <div class="page" id="page-history">
@@ -699,10 +795,10 @@ body.dark-mode .icon-btn, body.dark-mode .page-btn { background: #334155; border
     <!-- ═══════════════ ANALYTICS PAGE ═══════════════ -->
     <div class="page" id="page-analytics">
       <div class="stats-grid" style="margin-bottom:20px">
-        <div class="stat-card"><div class="stat-label">Total Scans</div><div class="stat-value" id="a-total">—</div><div class="stat-icon teal">📂</div></div>
-        <div class="stat-card"><div class="stat-label">Total Vulnerabilities</div><div class="stat-value" id="a-vulns">—</div><div class="stat-icon red">🐛</div></div>
-        <div class="stat-card"><div class="stat-label">Fix Rate</div><div class="stat-value" id="a-fix">—%</div><div class="stat-icon green">✅</div></div>
-        <div class="stat-card"><div class="stat-label">Critical Issues</div><div class="stat-value" id="a-crit">—</div><div class="stat-icon red">🚨</div></div>
+        <div class="stat-card"><div class="stat-label">Total Scans</div><div class="stat-value" id="a-total">—</div><div class="stat-icon teal"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 7 4"/><polyline points="20 7 20 4 17 4"/><polyline points="20 17 20 20 17 20"/><polyline points="4 17 4 20 7 20"/><line x1="2" x2="22" y1="12" y2="12"/></svg></div></div>
+        <div class="stat-card"><div class="stat-label">Total Vulnerabilities</div><div class="stat-value" id="a-vulns">—</div><div class="stat-icon red"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 2 1.88 1.88"/><path d="M14.12 3.88 16 2"/><path d="M9 7.13v-1a3.003 3.003 0 1 1 6 0v1"/><path d="M12 20c-3.3 0-6-2.7-6-6v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3c0 3.3-2.7 6-6 6"/><path d="M12 20v-9"/><path d="M6.53 9C4.6 8.8 3 7.1 3 5"/><path d="M6 13H2"/><path d="M3 21c0-2.1 1.7-3.9 3.8-4"/><path d="M20.97 5c0 2.1-1.6 3.8-3.5 4"/><path d="M22 13h-4"/><path d="M17.2 17c2.1.1 3.8 1.9 3.8 4"/></svg></div></div>
+        <div class="stat-card"><div class="stat-label">Fix Rate</div><div class="stat-value" id="a-fix">—%</div><div class="stat-icon green"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></div></div>
+        <div class="stat-card"><div class="stat-label">Critical Issues</div><div class="stat-value" id="a-crit">—</div><div class="stat-icon red"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></div></div>
       </div>
       <div class="grid-2">
         <div class="card"><div class="card-head"><div class="card-title">Severity Distribution</div></div><div class="card-body" style="height:300px;display:flex;justify-content:center;align-items:center"><canvas id="analyticsDonut"></canvas></div></div>
@@ -732,12 +828,12 @@ body.dark-mode .icon-btn, body.dark-mode .page-btn { background: #334155; border
         <div class="card">
             <div class="card-head"><div class="card-title">Account Information</div></div>
             <div class="card-body" id="profileInfoSection">
-              <div class="info-row"><div class="info-icon">📧</div><div><div class="info-label">Email</div><div class="info-value" id="p-email">—</div></div></div>
-              <div class="info-row"><div class="info-icon">👤</div><div><div class="info-label">Username</div><div class="info-value" id="p-username">—</div></div></div>
-              <div class="info-row"><div class="info-icon">🏢</div><div><div class="info-label">Organization</div><div class="info-value" id="p-org">—</div></div></div>
-              <div class="info-row"><div class="info-icon">💼</div><div><div class="info-label">Occupation</div><div class="info-value" id="p-occupation">-</div></div></div>
-              <div class="info-row"><div class="info-icon">📍</div><div><div class="info-label">Location</div><div class="info-value" id="p-location">—</div></div></div>
-              <div class="info-row"><div class="info-icon">📅</div><div><div class="info-label">Member Since</div><div class="info-value" id="p-joined">—</div></div></div>
+              <div class="info-row"><div class="info-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg></div><div><div class="info-label">Email</div><div class="info-value" id="p-email">—</div></div></div>
+              <div class="info-row"><div class="info-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div><div><div class="info-label">Username</div><div class="info-value" id="p-username">—</div></div></div>
+              <div class="info-row"><div class="info-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"></path><path d="M9 8h1"></path><path d="M9 12h1"></path><path d="M9 16h1"></path><path d="M14 8h1"></path><path d="M14 12h1"></path><path d="M14 16h1"></path><path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"></path></svg></div><div><div class="info-label">Organization</div><div class="info-value" id="p-org">—</div></div></div>
+              <div class="info-row"><div class="info-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg></div><div><div class="info-label">Occupation</div><div class="info-value" id="p-occupation">-</div></div></div>
+              <div class="info-row"><div class="info-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg></div><div><div class="info-label">Location</div><div class="info-value" id="p-location">—</div></div></div>
+              <div class="info-row"><div class="info-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg></div><div><div class="info-label">Member Since</div><div class="info-value" id="p-joined">—</div></div></div>
             </div>
             <div class="card-body" id="profileEditSection" style="display:none">
               <div class="form-group" style="margin-bottom:12px"><label style="font-size:12px;font-weight:500;color:#374151;display:block;margin-bottom:4px">Full Name</label><input class="edit-input" id="edit-name" type="text"></div>
@@ -764,10 +860,10 @@ body.dark-mode .icon-btn, body.dark-mode .page-btn { background: #334155; border
             <div class="card">
               <div class="card-head"><div class="card-title">Account Settings</div></div>
               <div class="card-body" style="padding:8px">
-                <div class="settings-item"><div class="settings-item-left"><div class="settings-item-icon" style="background:#dbeafe">✏️</div>Edit Profile</div><span class="chevron">›</span></div>
-                <div class="settings-item"><div class="settings-item-left"><div class="settings-item-icon" style="background:#fee2e2">🔒</div>Change Password</div><span class="chevron">›</span></div>
-                <div class="settings-item"><div class="settings-item-left"><div class="settings-item-icon" style="background:#dcfce7">🔔</div>Notification Preferences</div><span class="chevron">›</span></div>
-                <div class="settings-item" onclick="logout()" style="margin-top:4px"><div class="settings-item-left" style="color:#ef4444"><div class="settings-item-icon" style="background:#fee2e2">🚪</div>Sign Out</div><span class="chevron" style="color:#ef4444">›</span></div>
+                <div class="settings-item"><div class="settings-item-left"><div class="settings-item-icon" style="background:#fce7f3;color:#ec4899"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path><path d="m15 5 4 4"></path></svg></div>Edit Profile</div><span class="chevron">›</span></div>
+                <div class="settings-item"><div class="settings-item-left"><div class="settings-item-icon" style="background:#fee2e2;color:#ef4444"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></div>Change Password</div><span class="chevron">›</span></div>
+                <div class="settings-item"><div class="settings-item-left"><div class="settings-item-icon" style="background:#ede9fe;color:#8b5cf6"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg></div>Notification Preferences</div><span class="chevron">›</span></div>
+                <div class="settings-item" onclick="logout()" style="margin-top:4px"><div class="settings-item-left" style="color:#ef4444"><div class="settings-item-icon" style="background:#fee2e2;color:#ef4444"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" x2="9" y1="12" y2="12"></line></svg></div>Sign Out</div><span class="chevron" style="color:#ef4444">›</span></div>
               </div>
             </div>
           </div>
@@ -775,14 +871,19 @@ body.dark-mode .icon-btn, body.dark-mode .page-btn { background: #334155; border
       </div>
 
       <!-- ═══════════════ SETTINGS PAGE ═══════════════ -->
-      <div class="page" id="page-settings">
+            <div class="page" id="page-settings">
         <div class="card" style="max-width:600px">
-          <div class="card-head"><div class="card-title">⚙️ Settings</div></div>
+          <div class="card-head"><div class="card-title" style="display:flex;align-items:center;gap:8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Settings</div></div>
           <div class="card-body">
-            <div class="settings-item"><div class="settings-item-left"><div class="settings-item-icon" style="background:#f3e8ff">🔔</div>Notifications</div><button class="btn btn-ghost" style="font-size:11px;padding:5px 10px">Manage</button></div>
-            <div class="settings-item"><div class="settings-item-left"><div class="settings-item-icon" style="background:#fef9c3">🎨</div>Theme</div><button class="btn btn-outline" style="font-size:11px;padding:5px 10px" onclick="toggleDarkMode()" id="themeBtn">Dark Mode</button></div>
-            <hr style="border:none;border-top:1px solid #f1f5f9;margin:8px 0">
-            <div class="settings-item" onclick="logout()"><div class="settings-item-left" style="color:#ef4444"><div class="settings-item-icon" style="background:#fee2e2">🚪</div>Sign Out</div></div>
+            <div class="settings-item"><div class="settings-item-left"><div class="settings-item-icon" style="background:#ede9fe;color:#8b5cf6"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg></div>Notifications</div>
+              <label class="toggle-switch">
+                <input type="checkbox" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="settings-item"><div class="settings-item-left"><div class="settings-item-icon" style="background:#fef9c3;color:#eab308"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"></circle><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"></circle><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"></circle><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"></circle><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"></path></svg></div>Theme</div><button class="btn btn-outline" style="font-size:11px;padding:5px 10px;display:flex;align-items:center;gap:6px" onclick="toggleDarkMode()" id="themeBtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg> Dark Mode</button></div>
+            <hr style="border:none;border-top:1px solid var(--surface-border);margin:8px 0">
+            <div class="settings-item" onclick="logout()"><div class="settings-item-left" style="color:#ef4444"><div class="settings-item-icon" style="background:#fee2e2;color:#ef4444"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" x2="9" y1="12" y2="12"></line></svg></div>Sign Out</div></div>
           </div>
         </div>
       </div>
@@ -875,12 +976,13 @@ function renderUserInfo() {
 
   document.getElementById('sidebarName').textContent = currentUser.full_name || currentUser.username;
   document.getElementById('sidebarOccupation').textContent = currentUser.occupation || 'Developer';
-  document.getElementById('sidebarAvatar').textContent = initial;
-  document.getElementById('sidebarAvatar').style.background = color;
-  document.getElementById('topbarAvatar').textContent = initial;
-  document.getElementById('topbarAvatar').style.background = color;
-  document.getElementById('profileAvatar').textContent = initial;
-  document.getElementById('profileAvatar').style.background = color;
+  const userIcon = `<svg width="50%" height="50%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`;
+  document.getElementById('sidebarAvatar').innerHTML = userIcon;
+  document.getElementById('sidebarAvatar').style.background = 'linear-gradient(135deg, #ec4899, #8b5cf6)';
+  document.getElementById('topbarAvatar').innerHTML = userIcon;
+  document.getElementById('topbarAvatar').style.background = 'linear-gradient(135deg, #ec4899, #8b5cf6)';
+  document.getElementById('profileAvatar').innerHTML = userIcon;
+  document.getElementById('profileAvatar').style.background = 'linear-gradient(135deg, #ec4899, #8b5cf6)';
   document.getElementById('profileName').textContent = currentUser.full_name || currentUser.username;
   document.getElementById('profileOccupationText').textContent = currentUser.occupation || 'Developer';
   document.getElementById('p-email').textContent = currentUser.email || '—';
@@ -907,8 +1009,8 @@ function showPage(name, el) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   if (el) el.classList.add('active');
 
-  const titles = { dashboard:'Dashboard', scan:'New Scan', github:'Scan Repository', history:'Scan History', analytics:'Analytics', profile:'Profile', settings:'Settings' };
-  const subs = { dashboard:'Overview of your security pipeline', scan:'Upload and analyze code', github:'Analyze full GitHub repositories', history:'All past security scans', analytics:'Security trends & insights', profile:'Manage your account', settings:'Configure AegisFlow' };
+  const titles = { dashboard:'Dashboard', scan:'Scanner', github:'Scan Repository', history:'Scan History', analytics:'Analytics', profile:'Profile', settings:'Settings' };
+  const subs = { dashboard:'Overview of your security pipeline', scan:'Scan local files and remote repositories', github:'Analyze full GitHub repositories', history:'All past security scans', analytics:'Security trends & insights', profile:'Manage your account', settings:'Configure AegisFlow' };
   document.getElementById('pageTitle').textContent = titles[name] || name;
   document.getElementById('pageSubtitle').textContent = subs[name] || '';
 
@@ -953,7 +1055,12 @@ function renderRecentScans(scans) {
   }
   el.innerHTML = scans.map(s => `
     <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f8fafc;cursor:pointer" onclick="viewScan('${s._id}')">
-      <div style="width:30px;height:30px;background:#f1f5f9;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">📄</div>
+      <div style="width:30px;height:30px;background:rgba(236,72,153,0.1);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        ${(s.type === 'folder' || s.type === 'repo' || (s.filename && !s.filename.includes('.')) || s.is_repo) 
+          ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>'
+          : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>'
+        }
+      </div>
       <div style="flex:1;min-width:0">
         <div style="font-size:12.5px;font-weight:500;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.filename || 'unknown'}</div>
         <div style="font-size:11px;color:#94a3b8">${formatDate(s.created_at)}</div>
@@ -972,7 +1079,7 @@ function renderDonutChart(breakdown) {
 
   const labels = ['Critical', 'High', 'Medium', 'Low'];
   const values = [breakdown.CRITICAL||0, breakdown.HIGH||0, breakdown.MEDIUM||0, breakdown.LOW||0];
-  const colors = ['#ef4444','#f97316','#f59e0b','#10b981'];
+  const colors = ['#ec4899','#c084fc','#8b5cf6','#4c1d95'];
 
   if (values.every(v => v === 0)) {
     document.getElementById('donutLegend').innerHTML = '<div class="empty-state"><div class="empty-sub">No vulnerabilities yet</div></div>';
@@ -1009,13 +1116,13 @@ function renderTrendChart() {
     type: 'line',
     data: {
       labels,
-      datasets: [{ label: 'Vulnerabilities', data, borderColor: '#06b6d4', backgroundColor: 'rgba(6,182,212,0.08)', tension: 0.4, fill: true, pointRadius: 3, pointBackgroundColor: '#06b6d4', borderWidth: 2 }]
+      datasets: [{ label: 'Vulnerabilities', data, borderColor: '#ec4899', backgroundColor: 'rgba(236, 72, 153, 0.15)', tension: 0.4, fill: true, pointRadius: 3, pointBackgroundColor: '#a855f7', borderWidth: 2 }]
     },
     options: {
       plugins: { legend: { display: false } },
       scales: {
         x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#94a3b8' } },
-        y: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 10 }, color: '#94a3b8' } }
+        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { font: { size: 10 }, color: '#94a3b8' } }
       },
       responsive: true,
       maintainAspectRatio: true
@@ -1033,7 +1140,7 @@ function renderAnalyticsCharts(data) {
     type: 'doughnut',
     data: {
       labels: ['Critical', 'High', 'Medium', 'Low'],
-      datasets: [{ data: [bd.CRITICAL||0, bd.HIGH||0, bd.MEDIUM||0, bd.LOW||0], backgroundColor: ['#ef4444','#f97316','#f59e0b','#10b981'], borderWidth: 0 }]
+      datasets: [{ data: [bd.CRITICAL||0, bd.HIGH||0, bd.MEDIUM||0, bd.LOW||0], backgroundColor: ['#ec4899','#c084fc','#8b5cf6','#4c1d95'], borderWidth: 0 }]
     },
     options: { plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 12 } } }, responsive: true, maintainAspectRatio: false }
   });
@@ -1045,12 +1152,12 @@ function renderAnalyticsCharts(data) {
     type: 'bar',
     data: {
       labels: topTypes.map(t => t.type.split(' ').slice(0,2).join(' ')),
-      datasets: [{ label: 'Count', data: topTypes.map(t => t.count), backgroundColor: 'rgba(6,182,212,0.7)', borderRadius: 6 }]
+      datasets: [{ label: 'Count', data: topTypes.map(t => t.count), backgroundColor: 'rgba(168, 85, 247, 0.7)', borderRadius: 6 }]
     },
     options: {
       indexAxis: 'y',
       plugins: { legend: { display: false } },
-      scales: { x: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 10 } } }, y: { grid: { display: false }, ticks: { font: { size: 10 } } } },
+      scales: { x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { font: { size: 10 } } }, y: { grid: { display: false }, ticks: { font: { size: 10 } } } },
       responsive: true, maintainAspectRatio: false
     }
   });
@@ -1099,7 +1206,7 @@ function handleFileUpload(files, type) {
 
 function renderFileList() {
   document.getElementById('fileList').innerHTML = window.appFiles.map((f, i) =>
-    `<span onclick="switchActiveFile(${i})" id="file-pill-${i}" style="background:${i === window.activeFileIndex ? '#06b6d4' : '#f1f5f9'};color:${i === window.activeFileIndex ? 'white' : '#374151'};border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;transition:0.2s;display:inline-block">📄 ${f.name}</span>`
+    `<span onclick="switchActiveFile(${i})" id="file-pill-${i}" style="background:${i === window.activeFileIndex ? 'var(--accent-primary)' : 'var(--surface)'};border:1px solid var(--surface-border);color:${i === window.activeFileIndex ? 'white' : 'var(--text-main)'};border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;transition:0.2s;display:inline-block">📄 ${f.name}</span>`
   ).join('');
 }
 
@@ -1341,7 +1448,7 @@ async function loadHistory() {
   tbody.innerHTML = data.scans.map(s => `
     <tr>
       <td><div style="font-weight:500">${s.filename || 'unknown'}</div></td>
-      <td><span style="background:#f1f5f9;border-radius:6px;padding:2px 8px;font-size:11px">${(s.language || '').toUpperCase()}</span></td>
+      <td><span style="background:var(--surface);border:1px solid var(--surface-border);color:var(--text-main);border-radius:6px;padding:2px 8px;font-size:11px">${(s.language || '').toUpperCase()}</span></td>
       <td style="color:#64748b">${formatDate(s.created_at)}</td>
       <td style="font-weight:600">${s.total_found || 0}</td>
       <td><span class="risk-badge ${s.risk_level}">${s.risk_level || 'SAFE'}</span></td>
@@ -1498,7 +1605,7 @@ function toggleDarkMode() {
   document.body.classList.toggle('dark-mode');
   const isDark = document.body.classList.contains('dark-mode');
   localStorage.setItem('theme', isDark ? 'dark' : 'light');
-  document.getElementById('themeBtn').textContent = isDark ? 'Light Mode' : 'Dark Mode';
+  document.getElementById('themeBtn').innerHTML = isDark ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg> Light Mode' : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg> Dark Mode';
 }
 
 if (localStorage.getItem('theme') === 'dark') {
@@ -1641,6 +1748,33 @@ function downloadGithubReport(type) {
 
 // ─── START ─────────────────────────────────────────────────────────
 init();
+</script>
+<script>
+
+    // Theme Toggling Logic
+    function toggleTheme() {
+      const html = document.documentElement;
+      const btn = document.getElementById('themeToggle');
+      if (html.getAttribute('data-theme') === 'dark') {
+        html.setAttribute('data-theme', 'light');
+        if(btn) btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg> Dark Mode';
+        localStorage.setItem('aegisflow-theme', 'light');
+      } else {
+        html.setAttribute('data-theme', 'dark');
+        if(btn) btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg> Light Mode';
+        localStorage.setItem('aegisflow-theme', 'dark');
+      }
+    }
+
+    const savedTheme = localStorage.getItem('aegisflow-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    window.addEventListener('DOMContentLoaded', () => {
+        const btn = document.getElementById('themeToggle');
+        if(btn) {
+           btn.innerHTML = savedTheme === 'light' ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg> Dark Mode' : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg> Light Mode';
+        }
+    });
+
 </script>
 </body>
 </html>

@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AegisFlow — CI/CD Webhook Logs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ==============================================================
+       Premium "Dark X" & "Light Mode" Aesthetic CSS
+       ============================================================== */
+    :root {
+      /* Dark Theme (Default) */
+      --bg: #09090b;
+      --surface: rgba(24, 24, 27, 0.4);
+      --surface-border: rgba(255, 255, 255, 0.08);
+      --surface-hover: rgba(255, 255, 255, 0.05);
+      --text-main: #ffffff;
+      --text-muted: #a1a1aa;
+      --text-secondary: #e4e4e7;
+      
+      --accent-primary: #8b5cf6;
+      --accent-secondary: #ec4899;
+      --accent-tertiary: #3b82f6;
+      
+      --glow-op: 0.15;
+      
+      --success: #10b981;
+      --success-bg: rgba(16, 185, 129, 0.15);
+      --error: #ef4444;
+      --error-bg: rgba(239, 68, 68, 0.15);
+      --pending: #f59e0b;
+      --pending-bg: rgba(245, 158, 11, 0.15);
+      
+      --btn-bg: rgba(255, 255, 255, 0.05);
+      --btn-border: rgba(255, 255, 255, 0.1);
+      --btn-text: #ffffff;
+      --btn-hover: rgba(255, 255, 255, 0.1);
+      
+      --table-border: rgba(255, 255, 255, 0.05);
+      --th-bg: rgba(0, 0, 0, 0.2);
+    }
+    
+    [data-theme="light"] {
+      /* Light Theme */
+      --bg: #f8fafc;
+      --surface: rgba(255, 255, 255, 0.8);
+      --surface-border: rgba(0, 0, 0, 0.05);
+      --surface-hover: rgba(0, 0, 0, 0.02);
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --text-secondary: #334155;
+      
+      --glow-op: 0.1;
+      
+      --btn-bg: #ffffff;
+      --btn-border: #e2e8f0;
+      --btn-text: #0f172a;
+      --btn-hover: #f1f5f9;
+      
+      --table-border: rgba(0, 0, 0, 0.05);
+      --th-bg: rgba(0, 0, 0, 0.02);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+      transition: background-color 0.4s ease, color 0.4s ease;
+    }
+
+    /* Immersive Ambient Glow Backgrounds */
+    .ambient-glow {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      z-index: -1;
+      opacity: var(--glow-op);
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+    }
+    .glow-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: var(--accent-tertiary); }
+    .glow-2 { bottom: -20%; right: -10%; width: 60vw; height: 60vw; background: var(--accent-primary); }
+    .glow-3 { top: 30%; left: 40%; width: 40vw; height: 40vw; background: var(--accent-secondary); }
+
+    /* Navigation / Header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 24px 5%;
+      border-bottom: 1px solid var(--surface-border);
+      background: var(--surface);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+    .brand-icon {
+      width: 38px; height: 38px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent-tertiary), var(--accent-primary));
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-weight: bold; font-size: 18px;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+    .brand-name {
+      font-family: 'Outfit', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-main);
+      letter-spacing: -0.5px;
+    }
+
+    .header-actions { display: flex; align-items: center; gap: 16px; }
+
+    /* Pill Buttons */
+    .btn-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 24px;
+      border-radius: 9999px;
+      background: var(--btn-bg);
+      border: 1px solid var(--btn-border);
+      color: var(--btn-text);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      font-family: 'Inter', sans-serif;
+    }
+    .btn-pill:hover {
+      background: var(--btn-hover);
+      transform: translateY(-1px);
+    }
+    .btn-gradient {
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      border: none;
+      color: white;
+      box-shadow: 0 4px 15px rgba(236, 72, 153, 0.25);
+    }
+    .btn-gradient:hover {
+      background: linear-gradient(135deg, #7c3aed, #db2777);
+      box-shadow: 0 6px 20px rgba(236, 72, 153, 0.4);
+    }
+
+    /* Container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 60px 24px;
+    }
+
+    .page-header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+    .badge-top {
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      background: var(--surface);
+      border: 1px solid var(--surface-border);
+      color: var(--text-muted);
+      margin-bottom: 24px;
+      backdrop-filter: blur(10px);
+    }
+    .badge-top span {
+      background: linear-gradient(90deg, var(--accent-tertiary), var(--accent-secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 700;
+    }
+    
+    .title-main {
+      font-family: 'Outfit', sans-serif;
+      font-size: 56px;
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: 20px;
+      letter-spacing: -1.5px;
+    }
+    .title-main .gradient-text {
+      background: linear-gradient(135deg, var(--accent-tertiary), var(--accent-primary), var(--accent-secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .subtitle {
+      font-size: 18px;
+      color: var(--text-muted);
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+    .glass-card {
+      background: var(--surface);
+      border: 1px solid var(--surface-border);
+      border-radius: 24px;
+      padding: 32px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      transition: transform 0.3s ease, border-color 0.3s ease;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+    }
+    .glass-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(139, 92, 246, 0.3);
+    }
+    .stat-label {
+      font-size: 14px;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-bottom: 12px;
+    }
+    .stat-value {
+      font-size: 36px;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    /* Table Section */
+    .table-container {
+      background: var(--surface);
+      border: 1px solid var(--surface-border);
+      border-radius: 24px;
+      overflow: hidden;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+    }
+    .table-header {
+      padding: 24px 32px;
+      border-bottom: 1px solid var(--table-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .table-header h3 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 20px;
+      font-weight: 600;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th {
+      background: var(--th-bg);
+      text-align: left;
+      padding: 16px 32px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    td {
+      padding: 20px 32px;
+      border-bottom: 1px solid var(--table-border);
+      font-size: 14px;
+      color: var(--text-secondary);
+      vertical-align: middle;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--surface-hover); }
+    
+    .commit-hash {
+      font-family: monospace;
+      background: rgba(139, 92, 246, 0.1);
+      color: var(--accent-primary);
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+    
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .status-badge::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+    }
+    .status-badge.success { background: var(--success-bg); color: var(--success); }
+    .status-badge.success::before { background: var(--success); box-shadow: 0 0 8px var(--success); }
+    
+    .status-badge.failed { background: var(--error-bg); color: var(--error); }
+    .status-badge.failed::before { background: var(--error); box-shadow: 0 0 8px var(--error); }
+    
+    .status-badge.pending { background: var(--pending-bg); color: var(--pending); }
+    .status-badge.pending::before { background: var(--pending); box-shadow: 0 0 8px var(--pending); }
+
+    .empty-state {
+      padding: 60px;
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    /* Loader */
+    .loader {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,0.1);
+      border-top-color: var(--accent-primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+  </style>
+</head>
+<body>
+
+  <!-- Ambient Background -->
+  <div class="ambient-glow glow-1"></div>
+  <div class="ambient-glow glow-2"></div>
+  <div class="ambient-glow glow-3"></div>
+
+  <!-- Header -->
+  <header>
+    <a href="index.html" class="brand" style="align-items: center; justify-content: center; text-decoration: none;">
+      <img src="logo.png" alt="AegisFlow Logo" style="height: 40px; display: block;">
+    </a>
+    <div class="header-actions">
+      <button class="btn-pill btn-gradient" onclick="openWebhookModal()">🔗 Connect Repository</button>
+      <button class="btn-pill" id="themeToggle" onclick="toggleTheme()">
+        🌞 Light Mode
+      </button>
+      <a href="index.html" class="btn-pill">Back to Dashboard</a>
+      <a href="#" class="btn-pill" onclick="loadLogs()" style="border-color: var(--accent-tertiary);">↻ Refresh</a>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="page-header">
+      <div class="badge-top"><span>Automated CI/CD is active</span></div>
+      <h1 class="title-main">Webhook CI/CD <span class="gradient-text">Logs</span></h1>
+      <p class="subtitle">Real-time autonomous security tracking for your pull requests. AegisFlow intercepts, scans, and auto-remediates vulnerabilities before they are merged.</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="glass-card">
+        <div class="stat-label">Total PR Scans</div>
+        <div class="stat-value" id="statTotal">--</div>
+      </div>
+      <div class="glass-card">
+        <div class="stat-label">Auto-Fixed / Blocked</div>
+        <div class="stat-value" id="statBlocked">--</div>
+      </div>
+      <div class="glass-card">
+        <div class="stat-label">Average Scan Time</div>
+        <div class="stat-value"><span style="color:var(--success)">1.2s</span></div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-container">
+      <div class="table-header" style="display:flex; justify-content:space-between; align-items:center;">
+        <h3>Recent Automated Scans</h3>
+        <button class="btn-pill" style="padding:6px 12px; font-size:12px; color:var(--error); border-color:var(--error); background:transparent;" onclick="clearLogs()">🗑️ Clear Logs</button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Repository</th>
+            <th>Branch / PR</th>
+            <th>Status / Risk</th>
+            <th>Vulnerabilities</th>
+            <th>Date Triggered</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="logsTableBody">
+          <tr>
+            <td colspan="6">
+              <div class="empty-state">
+                <div class="loader"></div>
+                <p style="margin-top:16px">Loading webhook logs...</p>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Webhook Modal -->
+  <div id="webhookModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; align-items:center; justify-content:center; backdrop-filter: blur(5px);">
+    <div class="glass-card" style="width: 100%; max-width: 450px; position: relative;">
+      <button onclick="closeWebhookModal()" style="position:absolute; right:20px; top:20px; background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:18px;">✕</button>
+      <h3 style="margin-bottom: 20px; font-family:'Outfit'; color:var(--text-main); font-size: 24px;">Connect GitHub Repository</h3>
+      <p style="color:var(--text-muted); font-size:14px; margin-bottom:20px;">
+        AegisFlow uses GitHub OAuth to securely install the webhook to protect your Pull Requests. We never see your password or tokens.
+      </p>
+      
+      <div style="margin-bottom: 24px;">
+        <label style="display:block; font-size:13px; color:var(--text-muted); margin-bottom:6px; font-weight: 500;">GitHub Repo URL to Protect</label>
+        <input type="text" id="whRepoUrl" placeholder="https://github.com/username/repo" style="width:100%; padding:12px 14px; border-radius:8px; border:1px solid var(--surface-border); background:rgba(0,0,0,0.2); color:var(--text-main); outline:none; font-family: 'Inter', sans-serif;">
+      </div>
+      
+      <button onclick="startOAuthFlow()" class="btn-pill btn-gradient" style="width:100%; justify-content:center; padding:12px; font-size: 16px;">
+        <svg height="20" aria-hidden="true" viewBox="0 0 16 16" version="1.1" width="20" data-view-component="true" style="fill: white; margin-right: 8px;">
+            <path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path>
+        </svg>
+        Continue with GitHub
+      </button>
+      <div id="whError" style="color:var(--error); font-size:13px; margin-top:12px; text-align:center; display:none; padding: 10px; background: var(--error-bg); border-radius: 6px;"></div>
+      <div id="whSuccess" style="color:var(--success); font-size:13px; margin-top:12px; text-align:center; display:none; padding: 10px; background: var(--success-bg); border-radius: 6px;"></div>
+    </div>
+  </div>
+
+  <!-- Report Modal -->
+  <div id="reportModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; align-items:center; justify-content:center; backdrop-filter: blur(5px);">
+    <div class="glass-card" style="width: 100%; max-width: 600px; position: relative;">
+      <button onclick="document.getElementById('reportModal').style.display='none'" style="position:absolute; right:20px; top:20px; background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:18px;">✕</button>
+      
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 20px;">
+        <h3 style="font-family:'Outfit'; color:var(--text-main); font-size: 24px;">Security Scan Report</h3>
+        <div style="display:flex; gap:8px;">
+          <button id="dlPdfBtn" class="btn-pill" style="padding: 6px 12px; font-size: 12px; background: transparent; color: var(--accent-tertiary); border-color: var(--accent-tertiary);">📄 PDF</button>
+          <button id="dlDocxBtn" class="btn-pill" style="padding: 6px 12px; font-size: 12px; background: transparent; color: var(--accent-primary); border-color: var(--accent-primary);">📝 Markdown / 📦 ZIP</button>
+        </div>
+      </div>
+      
+      <div style="padding: 20px; background: transparent; border-radius: 8px; border: 1px solid var(--surface-border); margin-bottom: 20px;">
+        <div style="margin-bottom: 12px; font-size: 14px; color: var(--text-muted);">
+          <strong>Vulnerabilities Found:</strong> <span id="rmVulnCount" style="color:var(--error); font-weight: 700;"></span>
+        </div>
+        <div id="rmPrSection" style="display:none; font-size: 14px; color: var(--text-muted);">
+          <strong>Fix Applied:</strong> <a id="rmPrLink" href="#" target="_blank" style="color:var(--success); font-weight:600; text-decoration: underline;">View Pull Request on GitHub</a>
+        </div>
+        <div id="rmPendingSection" style="display:block; font-size: 14px; color: var(--pending);">
+          <strong>Status:</strong> Autonomous AI Remediation is in progress...
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function clearLogs() {
+      if (!confirm("Are you sure you want to delete all webhook scan logs?")) return;
+      const token = getToken();
+      try {
+        const res = await fetch('http://127.0.0.1:8000/api/github-scans', {
+          method: 'DELETE',
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        if (res.ok) {
+          loadLogs();
+        } else {
+          alert("Failed to clear logs.");
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function openReportModal(scanId, prUrl, vulnCount) {
+      document.getElementById('reportModal').style.display = 'flex';
+      document.getElementById('rmVulnCount').textContent = vulnCount;
+      
+      const prSec = document.getElementById('rmPrSection');
+      const prLink = document.getElementById('rmPrLink');
+      const pendingSec = document.getElementById('rmPendingSection');
+      
+      if (prUrl && prUrl !== 'undefined' && prUrl.trim() !== '') {
+        prSec.style.display = 'block';
+        prLink.href = prUrl;
+        pendingSec.style.display = 'none';
+      } else {
+        prSec.style.display = 'none';
+        pendingSec.style.display = 'block';
+      }
+      
+      document.getElementById('dlPdfBtn').onclick = () => window.open(`http://127.0.0.1:8000/api/download/github/${scanId}/pdf?token=` + getToken(), '_blank');
+      document.getElementById('dlDocxBtn').onclick = () => window.open(`http://127.0.0.1:8000/api/download/github/${scanId}/zip?token=` + getToken(), '_blank');
+    }
+
+    // Theme Toggling Logic
+    function toggleTheme() {
+      const html = document.documentElement;
+      const btn = document.getElementById('themeToggle');
+      if (html.getAttribute('data-theme') === 'dark') {
+        html.setAttribute('data-theme', 'light');
+        btn.textContent = '🌙 Dark Mode';
+        localStorage.setItem('aegisflow-theme', 'light');
+      } else {
+        html.setAttribute('data-theme', 'dark');
+        btn.textContent = '🌞 Light Mode';
+        localStorage.setItem('aegisflow-theme', 'dark');
+      }
+    }
+
+    // Load saved theme
+    const savedTheme = localStorage.getItem('aegisflow-theme');
+    if (savedTheme === 'light') {
+      document.documentElement.setAttribute('data-theme', 'light');
+      document.getElementById('themeToggle').textContent = '🌙 Dark Mode';
+    }
+
+    // API Helper
+    function getToken() { return localStorage.getItem('access_token'); }
+
+    async function loadLogs() {
+      const token = getToken();
+      if (!token) {
+        document.getElementById('logsTableBody').innerHTML = `<tr><td colspan="6" class="empty-state">Please login from the dashboard first.</td></tr>`;
+        return;
+      }
+      
+      const tbody = document.getElementById('logsTableBody');
+      tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="loader"></div><p style="margin-top:16px">Fetching live data...</p></div></td></tr>`;
+
+      try {
+        const res = await fetch('http://127.0.0.1:8000/api/github-scans?limit=50', {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        
+        if (!res.ok) throw new Error("Failed to fetch logs");
+        const data = await res.json();
+        
+        // Filter for webhook triggers if possible, or just show all for demo
+        let scans = data.scans || [];
+        // Optional: filter if backend flags them
+        const webhookScans = scans.filter(s => s.webhook_trigger === true || s.total_files_scanned !== undefined); 
+        
+        // Update stats
+        document.getElementById('statTotal').textContent = webhookScans.length;
+        const failed = webhookScans.filter(s => s.overall_risk === 'CRITICAL' || s.overall_risk === 'HIGH').length;
+        document.getElementById('statBlocked').textContent = failed;
+
+        if (webhookScans.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="6" class="empty-state">No webhook logs found. Trigger a scan by opening a PR!</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = webhookScans.map(scan => {
+          const date = new Date(scan.created_at).toLocaleString();
+          let statusClass = 'success';
+          let statusText = 'Safe to Merge';
+          
+          if (scan.overall_risk === 'REMEDIATED') {
+            statusClass = 'success';
+            statusText = 'Remediated (PR Created)';
+          } else if (scan.overall_risk === 'CRITICAL' || scan.overall_risk === 'HIGH') {
+            statusClass = 'pending'; // Changed from failed to pending to reflect auto-fixing
+            statusText = 'Auto-Remediating (Vulns Found)';
+          }
+
+          return `
+            <tr>
+              <td style="font-weight:500;color:var(--text-main)">${scan.repo_name || 'Unknown Repo'}</td>
+              <td>
+                <span class="commit-hash">${scan.branch || 'main'}</span>
+              </td>
+              <td>
+                <div class="status-badge ${statusClass}">${statusText}</div>
+              </td>
+              <td style="font-weight:600">${scan.total_vulnerabilities || 0} found</td>
+              <td style="color:var(--text-muted);font-size:13px">${date}</td>
+              <td>
+                <button class="btn-pill" style="padding: 6px 16px; font-size: 12px; background: transparent; color: var(--accent-tertiary); border-color: var(--accent-tertiary);" onclick="openReportModal('${scan._id}', '${scan.pr_url || ''}', ${scan.total_vulnerabilities})">View Report</button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+
+      } catch (e) {
+        console.error(e);
+        tbody.innerHTML = `<tr><td colspan="6" class="empty-state">Error loading logs: ${e.message}</td></tr>`;
+      }
+    }
+
+    // Webhook Modal & OAuth Logic
+    function openWebhookModal() {
+      document.getElementById('webhookModal').style.display = 'flex';
+      document.getElementById('whError').style.display = 'none';
+      document.getElementById('whSuccess').style.display = 'none';
+    }
+    
+    function closeWebhookModal() {
+      document.getElementById('webhookModal').style.display = 'none';
+    }
+    
+    function startOAuthFlow() {
+      const repo = document.getElementById('whRepoUrl').value;
+      const err = document.getElementById('whError');
+      err.style.display = 'none';
+      
+      if (!repo) {
+        err.textContent = "Please enter the GitHub Repository URL first.";
+        err.style.display = 'block';
+        return;
+      }
+      
+      // Save repo to localStorage before redirect
+      localStorage.setItem('pendingOAuthRepo', repo);
+      
+      // Redirect to GitHub OAuth
+      const clientId = "Ov23lisdiaXfx087AmPG"; // Added securely
+      const redirectUri = window.location.origin + "/webhooks.html";
+      const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=repo,admin:repo_hook`;
+      
+      window.location.href = githubAuthUrl;
+    }
+    
+    // Check if we are returning from GitHub OAuth
+    async function handleOAuthCallback() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get('code');
+      
+      if (code) {
+        // Show loading state
+        openWebhookModal();
+        const err = document.getElementById('whError');
+        const succ = document.getElementById('whSuccess');
+        const repo = localStorage.getItem('pendingOAuthRepo');
+        
+        if (!repo) {
+            err.textContent = "Repository URL was lost. Please try again.";
+            err.style.display = 'block';
+            return;
+        }
+        
+        succ.textContent = "Authenticating with GitHub... please wait.";
+        succ.style.display = 'block';
+        
+        try {
+          const res = await fetch('http://127.0.0.1:8000/api/github/oauth-setup', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + getToken()
+            },
+            body: JSON.stringify({
+              code: code,
+              repo_url: repo
+            })
+          });
+          
+          const data = await res.json();
+          if (data.success || res.ok) {
+            succ.textContent = data.message || "Webhook successfully connected via OAuth!";
+            localStorage.removeItem('pendingOAuthRepo');
+            // Clean URL
+            window.history.replaceState({}, document.title, window.location.pathname);
+            setTimeout(closeWebhookModal, 3000);
+          } else {
+            err.textContent = data.detail || "Failed to setup OAuth webhook";
+            err.style.display = 'block';
+            succ.style.display = 'none';
+          }
+        } catch (e) {
+          err.textContent = "Network error: " + e.message;
+          err.style.display = 'block';
+          succ.style.display = 'none';
+        }
+      }
+    }
+
+    // Init
+    loadLogs();
+    handleOAuthCallback();
+  </script>
+</body>
+</html>

@@ -12,7 +12,9 @@ def validate_code_in_sandbox(code: str, language: str = "python") -> Dict[str, A
     Spins up an isolated Docker container to validate the fixed code.
     Calculates a confidence bonus based on execution success.
     """
-    if language.lower() not in ["python", "py"]:
+    # We support multiple languages now
+    supported_langs = ["python", "py", "javascript", "js", "typescript", "ts", "java", "go"]
+    if language.lower() not in supported_langs:
         return {
             "success": True, 
             "message": f"Sandbox validation not configured for language: {language}", 
@@ -43,19 +45,42 @@ def validate_code_in_sandbox(code: str, language: str = "python") -> Dict[str, A
             
         print(f"[SANDBOX] Launching isolated container to test {temp_filename}...")
         
-        # 2. Run the container securely
-        # - python:3.11-slim (lightweight base image)
-        # - py_compile (checks for valid python syntax without executing potentially unsafe logic)
-        # - volumes (mounts our temp directory as read-only)
-        # - network_disabled=True (blocks internet access)
-        # - mem_limit="128m" (prevents memory exhaustion)
+        # 2. Run the container securely based on language
+        ext = ".py"
+        image = "python:3.11-slim"
+        command = f"python -m py_compile /app/{temp_filename}"
+        
+        if language.lower() in ["javascript", "js"]:
+            ext = ".js"
+            image = "node:18-slim"
+            command = f"node --check /app/{temp_filename}"
+        elif language.lower() in ["typescript", "ts"]:
+            ext = ".ts"
+            image = "node:18-slim"
+            # Basic JS syntax check as fallback for TS since full compilation requires tsconfig
+            command = f"node --check /app/{temp_filename}" 
+        elif language.lower() == "java":
+            ext = ".java"
+            image = "openjdk:17-slim"
+            command = f"javac /app/{temp_filename}"
+        elif language.lower() == "go":
+            ext = ".go"
+            image = "golang:1.21-alpine"
+            command = f"go run /app/{temp_filename}"
+            
+        # Update filename with correct extension
+        new_filename = temp_filename.replace(".py", ext)
+        new_path = temp_path.replace(".py", ext)
+        os.rename(temp_path, new_path)
+        temp_path = new_path
+        temp_filename = new_filename
         
         container_output = client.containers.run(
-            image="python:3.11-slim",
-            command=f"python -m py_compile /app/{temp_filename}",
+            image=image,
+            command=command,
             volumes={host_dir: {'bind': '/app', 'mode': 'ro'}},
             remove=True,
-            mem_limit="128m",
+            mem_limit="256m",
             network_disabled=True
         )
         

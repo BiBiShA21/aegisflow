@@ -1,70 +1,168 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
 <title>AegisFlow — Create Account</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f0f4f8;display:flex;min-height:100vh}
-.left{flex:0 0 45%;background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 50%,#0e7490 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px;position:relative;overflow:hidden}
-.left::before{content:'';position:absolute;top:-100px;right:-100px;width:400px;height:400px;background:radial-gradient(circle,rgba(6,182,212,0.15) 0%,transparent 70%);border-radius:50%}
+body{font-family: 'Inter', sans-serif; display: flex; min-height: 100vh; flex-direction: row; overflow-x: hidden;}
+@media(max-width: 900px) { body { flex-direction: column; } .left, .right { padding: 40px 20px; flex: auto; width: 100%; } }
+.left { flex: 0 0 45%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px; position: relative; z-index: 10; }
+
 .brand{display:flex;align-items:center;gap:12px;margin-bottom:40px;position:relative;z-index:1}
 .brand-icon{width:44px;height:44px;background:linear-gradient(135deg,#06b6d4,#3b82f6);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px}
 .brand-name{font-size:24px;font-weight:700;color:white}
 .hero-title{font-size:36px;font-weight:800;color:white;line-height:1.3;margin-bottom:20px;position:relative;z-index:1}
-.hero-sub{color:#94a3b8;font-size:14px;line-height:1.7;margin-bottom:40px;position:relative;z-index:1;max-width:320px}
+.hero-sub{color:var(--text-muted);font-size:14px;line-height:1.7;margin-bottom:40px;position:relative;z-index:1;max-width:320px}
 .features{position:relative;z-index:1}
-.feature{display:flex;align-items:center;gap:12px;margin-bottom:16px;color:#cbd5e1;font-size:14px}
-.feature-icon{width:32px;height:32px;background:rgba(6,182,212,0.15);border:1px solid rgba(6,182,212,0.3);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
-.trust{display:flex;align-items:center;gap:8px;color:#64748b;font-size:12px;margin-top:40px;position:relative;z-index:1}
-.right{flex:1;display:flex;align-items:center;justify-content:center;padding:40px;overflow-y:auto}
+.feature{display:flex;align-items:center;gap:12px;margin-bottom:16px;color:var(--text-main);font-size:14px}
+.feature-icon{width:32px;height:32px;background:linear-gradient(135deg, #ec4899, #8b5cf6);border:none;color:white;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.trust{display:flex;align-items:center;gap:8px;color:var(--text-muted);font-size:12px;margin-top:40px;position:relative;z-index:1}
+.right { flex: 1; display: flex; align-items: center; justify-content: center; padding: 60px 40px; z-index: 10; position: relative; }
 .auth-card{background:white;border-radius:20px;padding:48px;width:100%;max-width:460px;box-shadow:0 4px 24px rgba(0,0,0,0.08)}
 .card-title{font-size:24px;font-weight:700;color:#0f172a;margin-bottom:6px}
-.card-sub{color:#64748b;font-size:13px;margin-bottom:28px}
+.card-sub{color:var(--text-muted);font-size:13px;margin-bottom:28px}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .form-group{margin-bottom:16px}
 .form-label{display:block;font-size:12px;font-weight:500;color:#374151;margin-bottom:5px}
 .form-input{width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:9px;font-size:13px;color:#0f172a;transition:all 0.2s;outline:none;background:#fafafa}
-.form-input:focus{border-color:#06b6d4;background:white;box-shadow:0 0 0 3px rgba(6,182,212,0.1)}
+.form-input:focus{border-color:#ec4899;background:white;box-shadow:0 0 0 3px rgba(6,182,212,0.1)}
 .form-input.error-field{border-color:#ef4444}
 .input-wrap{position:relative}
-.eye-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#94a3b8;display:flex}
+.eye-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-muted);display:flex}
 .strength-bar{height:4px;border-radius:2px;background:#e5e7eb;margin-top:6px;overflow:hidden}
 .strength-fill{height:100%;border-radius:2px;transition:all 0.3s;width:0%}
 .strength-label{font-size:10px;margin-top:3px}
-.terms{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:#64748b;margin-bottom:20px}
-.terms input{margin-top:2px;accent-color:#06b6d4}
-.terms a{color:#06b6d4;text-decoration:none}
+.terms{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--text-muted);margin-bottom:20px}
+.terms input{margin-top:2px;accent-color:#ec4899}
+.terms a{color:#ec4899;text-decoration:none}
 .btn-primary{width:100%;padding:13px;background:linear-gradient(135deg,#06b6d4 0%,#f97316 100%);color:white;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s}
 .btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(6,182,212,0.3)}
 .btn-primary:disabled{opacity:0.7;cursor:not-allowed;transform:none}
-.signin-row{text-align:center;font-size:13px;color:#64748b;margin-top:18px}
-.signin-row a{color:#06b6d4;font-weight:600;text-decoration:none}
+.signin-row{text-align:center;font-size:13px;color:var(--text-muted);margin-top:18px}
+.signin-row a{color:#ec4899;font-weight:600;text-decoration:none}
 .msg{padding:10px 14px;border-radius:8px;font-size:12px;margin-bottom:14px;display:none}
 .msg.success{background:#dcfce7;color:#166534;border:1px solid #bbf7d0}
 .msg.error{background:#fee2e2;color:#991b1b;border:1px solid #fca5a5}
 .spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite;margin-right:6px;vertical-align:middle}
 @keyframes spin{to{transform:rotate(360deg)}}
+
+/* ==============================================================
+   PREMIUM GLASSMORPHIC THEME OVERRIDES
+   ============================================================== */
+:root {
+  --bg: #09090b;
+  --surface: rgba(24, 24, 27, 0.4);
+  --surface-border: rgba(255, 255, 255, 0.08);
+  --surface-hover: rgba(255, 255, 255, 0.05);
+  --text-main: #ffffff;
+  --text-muted: #a1a1aa;
+  --text-secondary: #e4e4e7;
+  --accent-primary: #8b5cf6;
+  --accent-secondary: #ec4899;
+  --accent-tertiary: #3b82f6;
+  --glow-op: 0.15;
+}
+
+[data-theme="light"] {
+  --bg: #f8fafc;
+  --surface: rgba(255, 255, 255, 0.8);
+  --surface-border: rgba(0, 0, 0, 0.05);
+  --surface-hover: rgba(0, 0, 0, 0.02);
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --text-secondary: #334155;
+  --glow-op: 0.1;
+}
+
+body{font-family: 'Inter', sans-serif;}
+
+/* Ambient Glows */
+.ambient-glow {
+  position: fixed; border-radius: 50%; filter: blur(120px); z-index: -1;
+  opacity: var(--glow-op); transition: opacity 0.4s ease; pointer-events: none;
+}
+.glow-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: var(--accent-tertiary); }
+.glow-2 { bottom: -20%; right: -10%; width: 60vw; height: 60vw; background: var(--accent-primary); }
+.glow-3 { top: 30%; left: 40%; width: 40vw; height: 40vw; background: var(--accent-secondary); }
+
+/* Overrides for index.html elements */
+.sidebar, .topbar, .card, .stat-card, .toast, .notif-dropdown, .auth-card, .table-container, .code-editor-head {
+  background: var(--surface) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-color: var(--surface-border) !important;
+  color: var(--text-main) !important;
+}
+
+.card-head, .topbar, .sidebar-brand, .sidebar-user, .auth-card { border-color: var(--surface-border) !important; }
+.topbar-left h1, .brand-name, .card-title, .user-name, .stat-value, .upload-title, .vuln-title, .info-value, .notif-head, .hero-title, .auth-card h1 { color: var(--text-main) !important; }
+.topbar-left p, .nav-item, .card-sub, .upload-sub, .vuln-desc, .text-muted, .empty-title, .empty-sub, .stat-label, .profile-role, .profile-stat-label, .hero-desc, .auth-card p { color: var(--text-muted) !important; }
+
+.nav-item:hover, .user-card:hover, .settings-item:hover, .history-table tr:hover td { background: var(--surface-hover) !important; }
+
+/* Remove old dark mode classes to avoid conflicts */
+body.dark-mode { background-color: var(--bg) !important; color: var(--text-main) !important; }
+
+/* Buttons */
+.btn-primary, .btn-teal, .btn-coral, .btn-green {
+  border-radius: 9999px !important;
+  border: none !important;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)) !important;
+  color: white !important;
+}
+.btn-primary:hover, .btn-teal:hover, .btn-coral:hover, .btn-green:hover {
+  background: linear-gradient(135deg, #7c3aed, #db2777) !important;
+  box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4) !important;
+}
+
+/* Text Inputs */
+.search-box, .edit-input, select, .form-input {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border-color: var(--surface-border) !important;
+  color: var(--text-main) !important;
+  backdrop-filter: blur(10px);
+}
+.search-box input, .form-input { color: var(--text-main) !important; }
+
+/* History Table overrides */
+.history-table th { background: rgba(0,0,0,0.05) !important; border-color: var(--surface-border) !important; color: var(--text-muted) !important; }
+.history-table td { border-color: var(--surface-border) !important; color: var(--text-secondary) !important; }
+
+/* Left Auth Section */
+.left { flex: 0 0 45%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px; position: relative; z-index: 10; }
+
 </style>
+  <link rel="stylesheet" href="theme.css">
 </head>
 <body>
+  <!-- Theme Toggle -->
+  <button id="themeToggle" onclick="toggleTheme()" style="position: absolute; top: 20px; right: 20px; z-index: 100; border: 1px solid var(--surface-border); background: var(--surface); padding: 8px 12px; border-radius: 9999px; color: var(--text-main); cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 500; backdrop-filter: blur(10px);">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg> Light Mode
+  </button>
+
+  <!-- Ambient Background -->
+  <div class="ambient-glow glow-1"></div>
+  <div class="ambient-glow glow-2"></div>
+  <div class="ambient-glow glow-3"></div>
+
 
 <div class="left">
-  <div class="brand">
-    <div class="brand-icon">🛡️</div>
-    <span class="brand-name">AegisFlow</span>
+  <div class="brand" style="justify-content: center; width: 100%; margin-bottom: 30px;">
+    <img src="logo.png" alt="AegisFlow Logo" style="height: 280px">
   </div>
   <h1 class="hero-title">Join AegisFlow today</h1>
   <p class="hero-sub">Create your account and start building more secure software with AI-powered vulnerability detection.</p>
   <div class="features">
-    <div class="feature"><div class="feature-icon">🔍</div>15 vulnerability types detected</div>
-    <div class="feature"><div class="feature-icon">🤖</div>Gemini AI-powered fixes</div>
-    <div class="feature"><div class="feature-icon">📊</div>Real-time security analytics</div>
-    <div class="feature"><div class="feature-icon">💾</div>Persistent scan history</div>
-    <div class="feature"><div class="feature-icon">🐙</div>1-click GitHub PR creation</div>
+    <div class="feature"><div class="feature-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></div>15 vulnerability types detected</div>
+    <div class="feature"><div class="feature-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"></rect><circle cx="12" cy="5" r="2"></circle><path d="M12 7v4"></path><line x1="8" y1="16" x2="8" y2="16"></line><line x1="16" y1="16" x2="16" y2="16"></line></svg></div>Gemini AI-powered fixes</div>
+    <div class="feature"><div class="feature-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg></div>Real-time security analytics</div>
+    <div class="feature"><div class="feature-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg></div>Persistent scan history</div>
+    <div class="feature"><div class="feature-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="18" r="3"></circle><circle cx="6" cy="6" r="3"></circle><path d="M13 6h3a2 2 0 0 1 2 2v7"></path><line x1="6" y1="9" x2="6" y2="21"></line></svg></div>1-click GitHub PR creation</div>
   </div>
-  <div class="trust">🔒 Secure • Reliable • Developer First</div>
+  <div class="trust"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#ec4899;margin-right:6px"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>Secure • Reliable • Developer First</div>
 </div>
 
 <div class="right">
@@ -223,6 +321,33 @@ async function handleRegister(e) {
 if (localStorage.getItem('access_token')) {
   window.location.href = 'index.html';
 }
+</script>
+<script>
+
+    // Theme Toggling Logic
+    function toggleTheme() {
+      const html = document.documentElement;
+      const btn = document.getElementById('themeToggle');
+      if (html.getAttribute('data-theme') === 'dark') {
+        html.setAttribute('data-theme', 'light');
+        if(btn) btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg> Dark Mode';
+        localStorage.setItem('aegisflow-theme', 'light');
+      } else {
+        html.setAttribute('data-theme', 'dark');
+        if(btn) btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg> Light Mode';
+        localStorage.setItem('aegisflow-theme', 'dark');
+      }
+    }
+
+    const savedTheme = localStorage.getItem('aegisflow-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    window.addEventListener('DOMContentLoaded', () => {
+        const btn = document.getElementById('themeToggle');
+        if(btn) {
+           btn.innerHTML = savedTheme === 'light' ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg> Dark Mode' : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg> Light Mode';
+        }
+    });
+
 </script>
 </body>
 </html>

@@ -618,7 +618,7 @@ async def get_dashboard(user: dict = Depends(require_user)):
 # ═══════════════════════════════════════════════════════════════════
 
 @app.post("/api/analyze/github")
-async def analyze_github(req: GithubScanRequest, user: dict = Depends(require_user)):
+def analyze_github(req: GithubScanRequest, user: dict = Depends(require_user)):
     """Analyze an entire GitHub repository"""
     try:
         agent = GithubAgent(token=req.github_token)
@@ -737,6 +737,14 @@ async def run_pipeline(req: AutonomousPipelineRequest, user: dict = Depends(requ
             "pr_url": final_state.get("pr_url"),
             "messages": final_state.get("messages", [])
         }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.delete("/api/github-scans")
+async def clear_github_scans(user: dict = Depends(require_user)):
+    try:
+        repo_scans_col().delete_many({})
+        return {"success": True, "message": "All logs cleared"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -885,6 +893,78 @@ async def download_github_zip(scan_id: str, user: dict = Depends(require_user)):
 # WEBHOOKS / CI-CD INTEGRATION (Phase 6)
 # ═══════════════════════════════════════════════════════════════════
 
+class RegisterWebhookRequest(BaseModel):
+    repo_url: str
+    github_token: str
+    webhook_url: str
+
+class OAuthSetupRequest(BaseModel):
+    code: str
+    repo_url: str
+
+@app.post("/api/github/oauth-setup")
+def github_oauth_setup(req: OAuthSetupRequest, user: dict = Depends(require_user)):
+    try:
+        import httpx
+        import os
+        from backend.agents.github_agent import parse_github_url
+        
+        # 1. Exchange code for access token
+        client_id = os.getenv("GITHUB_CLIENT_ID")
+        client_secret = os.getenv("GITHUB_CLIENT_SECRET")
+        
+        with httpx.Client() as client:
+            resp = client.post(
+                "https://github.com/login/oauth/access_token",
+                data={
+                    "client_id": client_id,
+                    "client_secret": client_secret,
+                    "code": req.code
+                },
+                headers={"Accept": "application/json"}
+            )
+            data = resp.json()
+            
+        access_token = data.get("access_token")
+        if not access_token:
+            raise HTTPException(status_code=400, detail="Failed to exchange GitHub OAuth code.")
+            
+        # 2. Setup Webhook
+        agent = GithubAgent(token=access_token)
+        parsed = parse_github_url(req.repo_url)
+        if not parsed:
+            raise HTTPException(status_code=400, detail="Invalid GitHub URL")
+            
+        owner, repo_name = parsed
+        webhook_url = os.getenv("AEGISFLOW_WEBHOOK_URL")
+        if not webhook_url:
+            raise HTTPException(status_code=500, detail="AEGISFLOW_WEBHOOK_URL not set in server.")
+            
+        result = agent.create_webhook(owner, repo_name, webhook_url)
+        return {"success": True, "message": "GitHub Webhook successfully connected via OAuth!"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/webhooks/register")
+def register_webhook(req: RegisterWebhookRequest, user: dict = Depends(require_user)):
+    try:
+        agent = GithubAgent(token=req.github_token)
+        from backend.agents.github_agent import parse_github_url
+        parsed = parse_github_url(req.repo_url)
+        if not parsed:
+            raise HTTPException(status_code=400, detail="Invalid GitHub URL")
+            
+        owner, repo_name = parsed
+        result = agent.create_webhook(owner, repo_name, req.webhook_url)
+        return result
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.post("/api/webhooks/github")
 async def github_webhook(request: Request, background_tasks: BackgroundTasks):
     """Webhook endpoint for GitHub Actions/Webhooks to trigger automated scans on push/PR"""
@@ -894,17 +974,19 @@ async def github_webhook(request: Request, background_tasks: BackgroundTasks):
         # Check if it's a push or pull_request event
         if "repository" in payload:
             repo_url = payload["repository"]["html_url"]
-            # Extract branch from ref (e.g. refs/heads/main)
-            branch = payload.get("ref", "").split("/")[-1] if "ref" in payload else "main"
-            
-            # Extract SHA for status check
+            # Extract SHA and Branch for status check
             sha = None
+            branch = "main"
+            
             if "pull_request" in payload:
                 sha = payload.get("pull_request", {}).get("head", {}).get("sha")
-            elif "after" in payload:
-                sha = payload.get("after")
-            elif "head_commit" in payload and payload["head_commit"]:
-                sha = payload["head_commit"].get("id")
+                branch = payload.get("pull_request", {}).get("head", {}).get("ref", "main")
+            else:
+                branch = payload.get("ref", "").split("/")[-1] if "ref" in payload else "main"
+                if "after" in payload:
+                    sha = payload.get("after")
+                elif "head_commit" in payload and payload["head_commit"]:
+                    sha = payload["head_commit"].get("id")
 
             def run_webhook_scan(url, br, commit_sha):
                 try:
@@ -938,25 +1020,35 @@ async def github_webhook(request: Request, background_tasks: BackgroundTasks):
                             
                             # Group vulnerabilities by file
                             vulns_by_file = {}
-                            for vuln in scan_results.get("vulnerabilities", []):
-                                fpath = vuln.get("file_path")
-                                if fpath:
-                                    if fpath not in vulns_by_file:
-                                        vulns_by_file[fpath] = {"code": vuln.get("code_snippet", ""), "vulns": []}
-                                    vulns_by_file[fpath]["vulns"].append(vuln)
+                            for file_data in scan_results.get("files", []):
+                                fpath = file_data.get("filename")
+                                if fpath and file_data.get("vulnerabilities"):
+                                    vulns_by_file[fpath] = {
+                                        "code": file_data.get("original_code", ""),
+                                        "language": file_data.get("language", ""),
+                                        "vulns": file_data.get("vulnerabilities")
+                                    }
                                     
-                            for fpath, data in vulns_by_file.items():
+                            # Limit to top 3 vulnerable files to prevent rate limits and excessive PRs
+                            files_to_fix = list(vulns_by_file.items())[:3]
+                            for fpath, data in files_to_fix:
                                 payload = {
                                     "code": data["code"],
-                                    "language": "", # Will auto-detect
+                                    "language": data["language"],
                                     "repo_name": f"{owner}/{repo_name}",
                                     "file_path": fpath,
                                     "github_token": os.getenv("GITHUB_PAT"),
                                     "scan_id": str(result.inserted_id)
                                 }
-                                # Run it asynchronously so it doesn't block
                                 print(f"🚀 [WEBHOOK] Triggering Self-Healing Pipeline for {fpath}")
-                                run_autonomous_pipeline(payload)
+                                final_state = run_autonomous_pipeline(payload)
+                                pr_url = final_state.get("pr_url")
+                                if pr_url:
+                                    repo_scans_col().update_one(
+                                        {"_id": result.inserted_id},
+                                        {"$set": {"pr_url": pr_url, "overall_risk": "REMEDIATED"}}
+                                    )
+                                    agent.update_commit_status(owner, repo_name, commit_sha, "success", "AegisFlow fix PR created successfully!")
                                 
                         else:
                             agent.update_commit_status(owner, repo_name, commit_sha, "success", f"Scan complete. Risk: {risk}")
