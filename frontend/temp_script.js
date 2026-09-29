@@ -1,5 +1,5 @@
 
-const API = 'http://127.0.0.1:8000';
+const API = 'https://aegisflow-api-phw6.onrender.com';
 let currentUser = null;
 let currentScanId = null;
 let currentPage = 1;

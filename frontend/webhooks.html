@@ -480,7 +480,7 @@
       if (!confirm("Are you sure you want to delete all webhook scan logs?")) return;
       const token = getToken();
       try {
-        const res = await fetch('http://127.0.0.1:8000/api/github-scans', {
+        const res = await fetch('https://aegisflow-api-phw6.onrender.com/api/github-scans', {
           method: 'DELETE',
           headers: { 'Authorization': 'Bearer ' + token }
         });
@@ -511,8 +511,8 @@
         pendingSec.style.display = 'block';
       }
       
-      document.getElementById('dlPdfBtn').onclick = () => window.open(`http://127.0.0.1:8000/api/download/github/${scanId}/pdf?token=` + getToken(), '_blank');
-      document.getElementById('dlDocxBtn').onclick = () => window.open(`http://127.0.0.1:8000/api/download/github/${scanId}/zip?token=` + getToken(), '_blank');
+      document.getElementById('dlPdfBtn').onclick = () => window.open(`https://aegisflow-api-phw6.onrender.com/api/download/github/${scanId}/pdf?token=` + getToken(), '_blank');
+      document.getElementById('dlDocxBtn').onclick = () => window.open(`https://aegisflow-api-phw6.onrender.com/api/download/github/${scanId}/zip?token=` + getToken(), '_blank');
     }
 
     // Theme Toggling Logic
@@ -551,7 +551,7 @@
       tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="loader"></div><p style="margin-top:16px">Fetching live data...</p></div></td></tr>`;
 
       try {
-        const res = await fetch('http://127.0.0.1:8000/api/github-scans?limit=50', {
+        const res = await fetch('https://aegisflow-api-phw6.onrender.com/api/github-scans?limit=50', {
           headers: { 'Authorization': 'Bearer ' + token }
         });
         
@@ -665,7 +665,7 @@
         succ.style.display = 'block';
         
         try {
-          const res = await fetch('http://127.0.0.1:8000/api/github/oauth-setup', {
+          const res = await fetch('https://aegisflow-api-phw6.onrender.com/api/github/oauth-setup', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
